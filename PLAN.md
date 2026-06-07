@@ -237,3 +237,27 @@ Sprint 3 (fase KO 4-Jul → 19-Jul):
 
 - Aplicar los 4 cambios + actualizar README. ✅ Hecho.
 
+---
+
+# Auto-sync por internet — 2026-06-07
+
+Objetivo: actualizar resultados/avances automáticamente, maestro no carga nada.
+
+- [x] Schema: `externalId` en Team/Match, `matchNumber` nullable, modelo `SyncState`.
+- [x] `lib/teams-data.ts` — mapeo código FIFA → nombre alemán + bandera (+fallback).
+- [x] `lib/football-api.ts` — cliente football-data.org (v4, competición WC), normaliza
+      stage/status/grupo/marcador/equipos.
+- [x] `/api/sync` — upsert por externalId, recálculo de puntos, throttle 5 min,
+      graceful sin clave. `force` solo staff.
+- [x] Auto-trigger cliente en dashboard + admin (cero acción maestro).
+- [x] Indicador `🌐 Auto-Sync aktiv` / `⚙️ aus` en el panel admin.
+- [x] README documentado (clave gratis football-data.org).
+
+Pendiente real: solo se puede probar en vivo desde el 11-Jun (datos del torneo).
+Requiere que el usuario cree la clave gratis y la ponga en `.env` como `FOOTBALL_API_KEY`.
+
+## Otras mejoras aplicadas
+
+- [x] `.gitignore`: `next-env.d.ts`, `*.tsbuildinfo`.
+- [x] Aviso si `JWT_SECRET` usa fallback en producción.
+

@@ -30,11 +30,12 @@ model Class {
 }
 
 model Team {
-  id        String  @id @default(cuid())
-  name      String  @unique
-  shortName String  // e.g. "GER"
-  group     String? // "A" to "L"
-  flagEmoji String  // e.g. "🇩🇪"
+  id         String  @id @default(cuid())
+  name       String  @unique
+  shortName  String  // e.g. "GER"
+  group      String? // "A" to "L"
+  flagEmoji  String  // e.g. "🇩🇪"
+  externalId Int?    @unique // football-data.org team id
 
   homeMatches Match[] @relation("HomeTeam")
   awayMatches Match[] @relation("AwayTeam")
@@ -43,7 +44,8 @@ model Team {
 
 model Match {
   id          String      @id @default(cuid())
-  matchNumber Int         @unique
+  matchNumber Int?        // seed bracket number (1-104); null for API-sourced matches
+  externalId  Int?        @unique // football-data.org match id
   phase       String
   group       String?     // for group stage: "A"-"L"
   round       String?     // for KO: "R32", "R16", "QF", "SF", "F"
@@ -58,6 +60,13 @@ model Match {
   venue       String
 
   tips Tip[]
+}
+
+model SyncState {
+  id         String    @id @default("main")
+  lastSyncAt DateTime?
+  lastStatus String?
+  updatedAt  DateTime  @updatedAt
 }
 
 model Tip {

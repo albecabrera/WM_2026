@@ -44,6 +44,9 @@ export async function POST(req: NextRequest) {
 
   const loserId = winnerId === match.homeTeamId ? match.awayTeamId : match.homeTeamId
 
+  if (match.matchNumber == null)
+    return NextResponse.json({ error: 'Kein Bracket für dieses Spiel' }, { status: 400 })
+
   const bracket = BRACKET[match.matchNumber]
   const sfBracket = SF_BRACKET[match.matchNumber]
 

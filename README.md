@@ -103,6 +103,8 @@ Desde el panel de admin, pestaña "Schüler verwalten":
 | POST | `/api/admin/reset-code` | (Admin/Lehrer) Buscar/resetear código de alumno |
 | GET | `/api/admin/qr` | (Admin/Lehrer) Generar QR PNG de código |
 | POST | `/api/results/winner` | (Admin/Lehrer) Revelar campeón + award puntos |
+| GET | `/api/sync` | Auto-sync con la API de fútbol (throttle 5 min) |
+| POST | `/api/sync?force=1` | (Admin/Lehrer) Forzar sync inmediato |
 
 > Todos los endpoints admin devuelven `403 Keine Berechtigung` a alumnos.
 
@@ -116,12 +118,42 @@ Al cargar el resultado de un partido KO en `/api/results`:
   en el modal y se llama `/api/admin/advance`.
 - **Semifinales** (#101, #102) → ganador al Final (#104), perdedor al 3er puesto (#103).
 
+## Auto-sync por internet (resultados automáticos)
+
+La app puede actualizarse **sola** con los resultados reales de la WM 2026 — el maestro
+no carga nada. Cuando alguien abre la app, se consulta una API de fútbol, se actualizan
+marcadores y equipos que avanzan (octavos, cuartos, semis, final), y se recalculan los puntos.
+
+**Cómo activarlo:**
+
+1. Crear una clave gratis en <https://www.football-data.org/client/register>
+2. Agregarla al `.env`:
+   ```env
+   FOOTBALL_API_KEY="tu-clave"
+   ```
+3. Reiniciar la app. Listo — en el panel admin aparece `🌐 Auto-Sync aktiv`.
+
+**Cómo funciona:**
+- `/api/sync` consulta `football-data.org` (competición `WC`), con **throttle de 5 min**.
+- Lo dispara el cliente al abrir el dashboard/admin → cero acción del maestro.
+- Equipos mapeados a alemán por código FIFA (`src/lib/teams-data.ts`); si falta uno,
+  usa el nombre de la API + 🏳 como fallback.
+- Partidos sincronizados por `externalId` (estable). Al primer import, los partidos
+  placeholder sin tipps se borran.
+- **Sin clave**, la app sigue funcionando en modo manual (cargar resultados a mano).
+
+> Variables opcionales: `FOOTBALL_API_BASE` (default v4), `FOOTBALL_API_COMPETITION` (default `WC`).
+> Para sync aunque nadie esté online: agregar un cron (Vercel Pro) o GitHub Action que
+> haga `GET /api/sync` cada 10 min.
+
 ## Variables de entorno
 
 ```env
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="tu-secreto-aqui"
 NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+# Opcional — activa el auto-sync de resultados:
+FOOTBALL_API_KEY="clave-de-football-data.org"
 ```
 
 ## Tech stack

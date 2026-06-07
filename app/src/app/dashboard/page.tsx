@@ -275,6 +275,13 @@ export default function DashboardPage() {
     return () => clearInterval(id)
   }, [fetchMatches, fetchLeaderboard])
 
+  // Auto-sync con internet al abrir (throttled en el servidor). El maestro no hace nada.
+  useEffect(() => {
+    fetch('/api/sync').then((r) => r.json()).then((d) => {
+      if (d?.ok && !d.skipped) { fetchMatches(); fetchLeaderboard() }
+    }).catch(() => {})
+  }, [fetchMatches, fetchLeaderboard])
+
   const groupMatches = matches.filter((m) => m.group === activeGroup)
   const tippedInGroup = groupMatches.filter((m) => {
     const t = tips[m.id]

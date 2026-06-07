@@ -47,6 +47,7 @@ export default function AdminPage() {
   const [resetMsg, setResetMsg] = useState({ text: '', ok: true })
   const [penaltyPrompt, setPenaltyPrompt] = useState<{ matchId: string; homeTeam: Match['homeTeam']; awayTeam: Match['awayTeam'] } | null>(null)
   const [advancingPenalty, setAdvancingPenalty] = useState(false)
+  const [sync, setSync] = useState<{ lastSyncAt: string | null; lastStatus: string | null; noKey: boolean } | null>(null)
 
   async function lookupOrResetCode(action: 'lookup' | 'reset' = 'lookup') {
     if (!resetQuery.trim()) return
@@ -82,6 +83,13 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => { fetchTeams() }, [fetchTeams])
+
+  // Auto-sync con internet al abrir el panel (throttled en el servidor)
+  useEffect(() => {
+    fetch('/api/sync').then((r) => r.json()).then((d) => {
+      setSync({ lastSyncAt: d?.lastSyncAt ?? null, lastStatus: d?.lastStatus ?? null, noKey: d?.reason === 'no-api-key' })
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (tab === 'results') {
@@ -277,7 +285,24 @@ export default function AdminPage() {
       )}
 
       <div className="container relative" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-        <h2 style={{ marginBottom: '1.5rem' }}>Admin-Panel</h2>
+        <h2 style={{ marginBottom: '0.5rem' }}>Admin-Panel</h2>
+
+        {/* Estado del auto-sync por internet */}
+        {sync && (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem',
+            padding: '0.35rem 0.8rem', borderRadius: '100px', fontSize: '0.78rem',
+            background: sync.noKey ? 'rgba(148,163,184,0.12)' : 'rgba(34,197,94,0.12)',
+            border: `1px solid ${sync.noKey ? 'rgba(148,163,184,0.3)' : 'rgba(34,197,94,0.3)'}`,
+            color: sync.noKey ? 'var(--c-muted)' : 'var(--c-green)',
+          }}>
+            {sync.noKey ? (
+              <>⚙️ Auto-Sync aus — kein API-Schlüssel (Ergebnisse manuell eintragen)</>
+            ) : (
+              <>🌐 Auto-Sync aktiv{sync.lastSyncAt ? ` · ${new Date(sync.lastSyncAt).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}{sync.lastStatus ? ` · ${sync.lastStatus}` : ''}</>
+            )}
+          </div>
+        )}
 
         {msg.text && (
           <div style={{
