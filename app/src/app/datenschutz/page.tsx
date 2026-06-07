@@ -106,9 +106,10 @@ export default function DatenschutzPage() {
             <h2>3. Session-Cookie (technisch notwendig)</h2>
             <p>
               Nach dem Login wird ein <strong>technisch notwendiges Session-Cookie</strong>
-              gesetzt (<code>session</code>). Es enthält ausschließlich den Phantasienamen
-              und die Klassen-Farbe. Es handelt sich um kein Tracking-Cookie —
-              keine Drittanbieter haben Zugriff.
+              gesetzt (<code>session</code>). Es enthält ausschließlich technische
+              Anmeldedaten — Phantasiename, Klasse, Rolle und den Login-Code.
+              Keine echten Namen, keine personenbezogenen Daten. Es handelt sich um kein
+              Tracking-Cookie — keine Drittanbieter haben Zugriff (<code>httpOnly</code>).
             </p>
           </div>
 
@@ -128,8 +129,13 @@ export default function DatenschutzPage() {
             <h2>5. Keine Tracker · Keine Werbung · Keine Analytics</h2>
             <p>
               Es sind keinerlei Drittanbieter-Skripte eingebunden: kein Google Analytics,
-              kein Meta Pixel, keine Werbenetze. Die App läuft vollständig ohne externe
-              JavaScript-Bibliotheken im Browser.
+              kein Meta Pixel, keine Werbenetze. Die App läuft im Browser ohne externe
+              JavaScript-Bibliotheken.
+            </p>
+            <p style={{ marginTop: '0.5rem' }}>
+              Auch die Schriftarten werden <strong>lokal vom Schulserver</strong> ausgeliefert
+              (selbst gehostet) — es findet <strong>keine Verbindung zu Google&nbsp;Fonts</strong>
+              oder anderen CDNs statt. Beim Aufruf der App wird keine IP-Adresse an Dritte übertragen.
             </p>
           </div>
 
