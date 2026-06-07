@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
 // POST /api/tips
 export async function POST(req: NextRequest) {
   const session = await getSession()
-  if (!session || session.role !== 'STUDENT')
+  // Players (students and teachers) tip; admins don't compete.
+  if (!session || session.role === 'ADMIN')
     return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 })
 
   const { matchId, homeGoals, awayGoals } = await req.json()

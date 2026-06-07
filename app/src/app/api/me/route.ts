@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { getSchool, getClassCodesForSchool } from '@/lib/classes'
 
 export async function GET() {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 })
 
-  if (session.role !== 'STUDENT') {
+  // Admins don't compete — no stats.
+  if (session.role === 'ADMIN') {
     return NextResponse.json({
       id: session.id,
       name: session.name,
@@ -20,7 +22,12 @@ export async function GET() {
     })
   }
 
-  const [user, allStudents] = await Promise.all([
+  // Rank is scoped to the user's own school (BBG vs ESG).
+  const userSchool = getSchool(session.classCode)
+  const schoolCodes = userSchool ? getClassCodesForSchool(userSchool) : undefined
+
+  const PLAYER_ROLES = ['STUDENT', 'TEACHER']
+  const [user, allPlayers] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.id },
       include: {
@@ -29,7 +36,10 @@ export async function GET() {
       },
     }),
     prisma.user.findMany({
-      where: { role: 'STUDENT' },
+      where: {
+        role: { in: PLAYER_ROLES },
+        ...(schoolCodes ? { classCode: { in: schoolCodes } } : {}),
+      },
       include: {
         tips: { where: { points: { not: null } }, select: { points: true } },
         tournamentWinnerTip: { select: { points: true } },
@@ -43,7 +53,7 @@ export async function GET() {
   const winnerPoints = user.tournamentWinnerTip?.points ?? 0
   const totalPoints = tipPoints + winnerPoints
 
-  const sorted = allStudents
+  const sorted = allPlayers
     .map((u) => ({
       id: u.id,
       total: u.tips.reduce((s, t) => s + (t.points ?? 0), 0) + (u.tournamentWinnerTip?.points ?? 0),

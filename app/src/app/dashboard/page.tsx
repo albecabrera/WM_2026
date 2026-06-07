@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
+import { classLabel } from '@/lib/classes'
 
 function TutorialModal({ onClose }: { onClose: () => void }) {
   const lineStyle = { margin: 0, marginBottom: '0.5rem', lineHeight: 1.5 }
@@ -188,7 +189,8 @@ interface Match {
   userTip?: { homeGoals: number; awayGoals: number; points?: number } | null
 }
 interface Me {
-  name: string; classCode: string; totalPoints: number; tipCount: number; rank: number | null
+  name: string; classCode: string; role: 'STUDENT' | 'TEACHER' | 'ADMIN'
+  totalPoints: number; tipCount: number; rank: number | null
   hasWinnerTip: boolean; winnerTipTeamId: string | null
 }
 interface WinnerTip { teamId: string; team: Team }
@@ -383,6 +385,12 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <Link href="/dashboard/ko" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>KO-Runden</Link>
             <Link href="/leaderboard" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Rangliste</Link>
+            {me && (me.role === 'TEACHER' || me.role === 'ADMIN') && (
+              <>
+                <Link href="/admin" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>⚙ Verwaltung</Link>
+                <Link href="/klassenliste" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>📋 Klassenliste</Link>
+              </>
+            )}
             <button
               onClick={() => setShowTutorial(true)}
               title="Spielanleitung anzeigen"
@@ -623,7 +631,7 @@ export default function DashboardPage() {
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '0.9rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.name}</div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--c-hint)' }}>{u.classCode.toUpperCase()}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--c-hint)' }}>{classLabel(u.classCode)}</div>
                     </div>
                     <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: 'var(--c-gold)' }}>{u.totalPoints}</span>
                   </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { getSchool, getClassCodesForSchool } from '@/lib/classes'
 
 // POST /api/admin/users - create a student
 export async function POST(req: NextRequest) {
@@ -14,8 +15,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Name und Klasse erforderlich' }, { status: 400 })
   }
 
-  // Generate login code: lastname + class
-  const loginCode = `${name.toLowerCase().replace(/\s+/g, '').replace(/ü/g,'ue').replace(/ö/g,'oe').replace(/ä/g,'ae').replace(/ß/g,'ss')}${classCode}`
+  // Generate login code: fantasy-name + "-" + class (matches seed format)
+  const loginCode = `${name.toLowerCase().replace(/\s+/g, '').replace(/ü/g,'ue').replace(/ö/g,'oe').replace(/ä/g,'ae').replace(/ß/g,'ss')}-${classCode}`
 
   const existing = await prisma.user.findUnique({ where: { loginCode } })
   if (existing) {
@@ -29,18 +30,29 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ user, loginCode })
 }
 
-// GET /api/admin/users - list all students
+// GET /api/admin - list students (admin: all or ?school=; teacher: own class only)
 export async function GET(req: NextRequest) {
   const session = await getSession()
-  if (!session || session.role !== 'ADMIN')
+  if (!session || (session.role !== 'ADMIN' && session.role !== 'TEACHER'))
     return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 })
 
-  const classCode = req.nextUrl.searchParams.get('class')
+  const classCodeParam = req.nextUrl.searchParams.get('class')
+  const schoolParam = req.nextUrl.searchParams.get('school') as 'bbg' | 'esg' | null
+
+  let classCodes: string[] | undefined
+  if (session.role === 'TEACHER') {
+    classCodes = [session.classCode]
+  } else if (classCodeParam) {
+    classCodes = [classCodeParam]
+  } else if (schoolParam) {
+    classCodes = getClassCodesForSchool(schoolParam)
+  }
+  // ADMIN with no filter → returns all schools
 
   const users = await prisma.user.findMany({
     where: {
-      role: 'STUDENT',
-      ...(classCode ? { classCode } : {}),
+      role: { in: ['STUDENT', 'TEACHER'] },
+      ...(classCodes ? { classCode: { in: classCodes } } : {}),
     },
     orderBy: [{ classCode: 'asc' }, { name: 'asc' }],
   })

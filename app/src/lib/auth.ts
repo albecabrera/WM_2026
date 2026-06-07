@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'wm2026-secret-change-in-production'
-
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  console.warn('⚠️  JWT_SECRET no está definido en producción — usando fallback inseguro. ¡Configuralo!')
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET fehlt in .env — App kann nicht starten. Siehe README.')
 }
+
+const JWT_SECRET = process.env.JWT_SECRET
 
 export interface SessionUser {
   id: string

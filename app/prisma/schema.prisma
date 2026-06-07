@@ -10,8 +10,8 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   name      String
-  classCode String   // e.g. "6a", "5b"
-  loginCode String   @unique // e.g. "mueller6a"
+  classCode String   // color class code, e.g. "gelb", "rot"
+  loginCode String   @unique // e.g. "rasenrakete-gelb"
   role      String   @default("STUDENT")
   createdAt DateTime @default(now())
 
@@ -23,9 +23,8 @@ model User {
 
 model Class {
   id        String   @id @default(cuid())
-  code      String   @unique // e.g. "6a"
-  name      String   // e.g. "Klasse 6a"
-  teacherCode String @unique // teacher login code
+  code      String   @unique // color code, e.g. "gelb"
+  name      String   // display name, e.g. "Gelb"
   createdAt DateTime @default(now())
 }
 

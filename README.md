@@ -26,16 +26,49 @@ npm run dev                   # http://localhost:3000 (o 3001 si está ocupado)
 
 > **JWT_SECRET**: cualquier string largo aleatorio, p. ej. `openssl rand -hex 32`
 
-## Login codes de demo
+## Login-Codes
 
-| Rol      | Código       | Clase |
-|----------|--------------|-------|
-| Admin    | `admin2026`  | —     |
-| Lehrer   | `lehrer6a`   | 6a    |
-| Lehrer   | `lehrer5b`   | 5b    |
-| Schüler  | `mueller6a`  | 6a    |
-| Schüler  | `schmidt6a`  | 6a    |
-| Schüler  | `bauer6b`    | 6b    |
+6 Klassen (Farben), je 30 Schüler + 2 Lehrer. **Nur Phantasienamen** — die
+Zuordnung zu echten Schülern bleibt offline beim Lehrer (DSGVO-konform).
+
+### Admin
+
+| Code        |
+|-------------|
+| `admin2026` |
+
+### Lehrer (alle 12)
+
+| Klasse    | Code 1                         | Code 2                        |
+|-----------|--------------------------------|-------------------------------|
+| **gelb**  | `torpantherspur-gelb`          | `rasenzauberwind-gelb`        |
+| **schwarz** | `ballgepardspur-schwarz`     | `netzfederflug-schwarz`       |
+| **gruen** | `elferkompass-gruen`           | `torregenflug-gruen`          |
+| **blau**  | `flankenmeteorflug-blau`       | `ballvulkanwind-blau`         |
+| **rot**   | `netzfuchsspur-rot`            | `rasenphantasie-rot`          |
+| **weiss** | `pokalwirbel-weiss`            | `fanfarenblitz-weiss`         |
+
+### Schüler — Beispiele (je 2 pro Klasse)
+
+| Klasse    | Beispiel 1                | Beispiel 2                  |
+|-----------|---------------------------|-----------------------------|
+| **gelb**  | `rasenrakete-gelb`        | `ballblitz-gelb`            |
+| **schwarz** | `netzfalke-schwarz`     | `elferstern-schwarz`        |
+| **gruen** | `rasenblitz-gruen`        | `ballstern-gruen`           |
+| **blau**  | `torgepard-blau`          | `rasenvulkan-blau`          |
+| **rot**   | `torrakete-rot`           | `rasenfeder-rot`            |
+| **weiss** | `torwirbelwind-weiss`     | `rasenmeteorflug-weiss`     |
+
+> Alle Schüler-Codes: `{phantasiename}-{farbe}` — vollständige Liste in `prisma/seed.ts`.
+
+## Datenschutz (DSGVO)
+
+- **Nur Phantasienamen** — keine echten Schüler- oder Lehrernamen in der App.
+  Die Zuordnung Code ↔ Person bleibt offline beim Lehrer.
+- **Daten verlassen das Gerät nicht** — SQLite läuft lokal; keine Drittanbieter-Dienste.
+- **Keine Tracking-Cookies, keine Tracker, keine Werbung.**
+  (Session-Cookie technisch notwendig für Login — kein Tracking, kein Drittanbieter.)
+- Hinweis wird beim Login angezeigt: _"Nur Phantasienamen verwenden."_
 
 ## Funcionalidades
 
@@ -150,24 +183,36 @@ marcadores y equipos que avanzan (octavos, cuartos, semis, final), y se recalcul
 
 ```env
 DATABASE_URL="file:./dev.db"
-JWT_SECRET="tu-secreto-aqui"
+JWT_SECRET="min-32-zeichen-langer-zufallsstring"   # PFLICHT — App startet sonst nicht
 NEXT_PUBLIC_BASE_URL="http://localhost:3000"
-# Opcional — activa el auto-sync de resultados:
+# Optional — aktiviert Auto-Sync der WM-Ergebnisse:
 FOOTBALL_API_KEY="clave-de-football-data.org"
 ```
 
-## Tech stack
+> **JWT_SECRET generieren:** `openssl rand -hex 32`
 
-- **Next.js 14** — App Router, Server Components
-- **Prisma 5** + **SQLite** — ORM + base de datos local
-  > Nota: SQLite no soporta `enum`; los roles/fases/estados son `String`.
-- **JWT** via `jsonwebtoken` + `cookies-next`
-- **QR codes** via `qrcode` npm package
-- **Tema claro/oscuro** — CSS custom properties + `[data-theme]` en `<html>`
+## Deployment (lokal — empfohlen für Schulbetrieb)
 
-## Deployment (Vercel)
+Lokaler Betrieb ist die empfohlene Option: Daten verlassen das Schulnetz nicht (DSGVO).
 
-El `vercel.json` en la raíz configura el build desde el subdirectorio `app/`:
+```bash
+cd app
+npm install
+cp .env.example .env       # JWT_SECRET setzen (openssl rand -hex 32)
+npx prisma db push
+npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+npm run build
+npm start                  # http://localhost:3000
+```
+
+Zugänglich für alle Schüler im selben WLAN: `http://<IP-des-Schulrechners>:3000`
+
+### Deployment auf Vercel (optional)
+
+Nur wenn externer Zugriff nötig. In diesem Fall:
+- Region auf **Frankfurt (`fra1`)** setzen (EU-Server, DSGVO)
+- [Data Processing Agreement mit Vercel](https://vercel.com/legal/dpa) abschließen (kostenlos)
+- Dieselben Umgebungsvariablen in Vercel hinterlegen
 
 ```json
 {
@@ -177,7 +222,13 @@ El `vercel.json` en la raíz configura el build desde el subdirectorio `app/`:
 }
 ```
 
-Agregar en Vercel las mismas variables de entorno del `.env`.
+## Tech stack
+
+- **Next.js 14** — App Router, Server Components
+- **Prisma 5** + **SQLite** — ORM + lokale Datenbank (kein externer DB-Server)
+- **JWT** via `jsonwebtoken` + `cookies-next` (Session-Cookie, kein Tracking)
+- **QR codes** via `qrcode` npm package (lokal generiert)
+- **Tema claro/oscuro** — CSS custom properties + `[data-theme]` en `<html>`
 
 ## CI
 

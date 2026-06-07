@@ -3,11 +3,41 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeProvider'
 
+const SCHOOL_CODES: Record<'bbg' | 'esg', string> = {
+  bbg: 'bbg-wm2026',
+  esg: 'esg-wm2026',
+}
+
+const SCHOOL_LABELS: Record<'bbg' | 'esg', { short: string; full: string; color: string }> = {
+  bbg: { short: 'BBG',  full: 'BBG Bonn',                          color: '#3b82f6' },
+  esg: { short: 'ESG',  full: 'Elisabeth-Selbert-Gesamtschule',    color: '#f5c842' },
+}
+
 export default function LoginPage() {
-  const [code, setCode] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [step, setStep]             = useState<'school' | 'code'>('school')
+  const [selectedSchool, setSelectedSchool] = useState<'bbg' | 'esg' | null>(null)
+  const [schoolInput, setSchoolInput] = useState('')
+  const [schoolError, setSchoolError] = useState('')
+  const [code, setCode]             = useState('')
+  const [error, setError]           = useState('')
+  const [loading, setLoading]       = useState(false)
   const router = useRouter()
+
+  function selectSchool(school: 'bbg' | 'esg') {
+    setSelectedSchool(school)
+    setSchoolInput('')
+    setSchoolError('')
+  }
+
+  function confirmSchool() {
+    if (!selectedSchool) { setSchoolError('Bitte eine Schule wählen.'); return }
+    if (schoolInput.trim() !== SCHOOL_CODES[selectedSchool]) {
+      setSchoolError('Zugangscode falsch. Frag deinen Lehrer!')
+      return
+    }
+    setSchoolError('')
+    setStep('code')
+  }
 
   async function handleLogin() {
     if (!code.trim()) return
@@ -28,9 +58,11 @@ export default function LoginPage() {
       return
     }
 
-    if (data.role === 'ADMIN' || data.role === 'TEACHER') router.push('/admin')
+    if (data.role === 'ADMIN') router.push('/admin')
     else router.push('/dashboard')
   }
+
+  const school = selectedSchool ? SCHOOL_LABELS[selectedSchool] : null
 
   return (
     <>
@@ -81,10 +113,47 @@ export default function LoginPage() {
           top: 1.25rem;
           right: 1.25rem;
         }
+        .school-cards {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+          width: 100%;
+          margin-bottom: 1.5rem;
+        }
+        .school-card {
+          border: 2px solid var(--c-border);
+          border-radius: 12px;
+          padding: 1.1rem 0.75rem;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.18s;
+          background: transparent;
+          color: var(--c-text);
+        }
+        .school-card:hover { border-color: var(--c-muted); }
+        .school-card.selected-bbg {
+          border-color: #3b82f6;
+          background: rgba(59,130,246,0.08);
+        }
+        .school-card.selected-esg {
+          border-color: #f5c842;
+          background: rgba(245,200,66,0.08);
+        }
+        .school-card-abbr {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 2rem;
+          line-height: 1;
+          margin-bottom: 0.3rem;
+        }
+        .school-card-name {
+          font-size: 0.7rem;
+          color: var(--c-muted);
+          line-height: 1.3;
+        }
         @media (max-width: 768px) {
           .login-page {
             grid-template-columns: 1fr;
-            grid-template-rows: 220px 1fr;
+            grid-template-rows: 200px 1fr;
           }
           .login-right {
             border-left: none;
@@ -93,21 +162,15 @@ export default function LoginPage() {
           }
           .login-left-content h2 { font-size: 2.5rem; }
         }
-        .points-legend {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          margin-top: 1.5rem;
-          text-align: left;
-          width: 100%;
-          max-width: 340px;
-        }
-        .points-row {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          font-size: 0.83rem;
-          color: var(--c-muted);
+        .dsgvo-box {
+          margin-top: 2rem;
+          padding: 0.85rem 1rem;
+          background: rgba(59,130,246,0.07);
+          border: 1px solid rgba(59,130,246,0.18);
+          border-radius: var(--r-sm);
+          font-size: 0.72rem;
+          color: var(--c-hint);
+          line-height: 1.55;
         }
       `}</style>
 
@@ -124,7 +187,7 @@ export default function LoginPage() {
               WM 2026
             </h2>
             <p style={{ color: 'var(--c-muted)', letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: '0.85rem', marginBottom: '2rem' }}>
-              Tipp-Spiel · ESG Bonn
+              Tipp-Spiel · BBG & ESG
             </p>
 
             {/* Mini scoring guide */}
@@ -162,58 +225,166 @@ export default function LoginPage() {
           </div>
 
           <div style={{ width: '100%', maxWidth: '340px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔐</div>
-              <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2.8rem', color: 'var(--c-gold)', lineHeight: 1, marginBottom: '0.4rem' }}>
-                Anmelden
-              </h1>
-              <p style={{ color: 'var(--c-muted)', fontSize: '0.9rem' }}>
-                Gib deinen persönlichen Code ein
-              </p>
-            </div>
 
-            <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--c-muted)', marginBottom: '0.4rem', fontWeight: 500 }}>
-              Dein Login-Code
-            </label>
-            <input
-              className="input"
-              type="text"
-              placeholder="z.B. mueller6a"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              style={{ fontSize: '1.1rem', letterSpacing: '0.05em' }}
-            />
+            {/* ── Step 1: school selection ── */}
+            {step === 'school' && (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🏫</div>
+                  <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2.4rem', color: 'var(--c-gold)', lineHeight: 1, marginBottom: '0.4rem' }}>
+                    Schule wählen
+                  </h1>
+                  <p style={{ color: 'var(--c-muted)', fontSize: '0.88rem' }}>
+                    Wähle deine Schule und gib den Zugangscode ein.
+                  </p>
+                </div>
 
-            {error && (
-              <p style={{
-                marginTop: '0.75rem',
-                padding: '0.65rem 0.9rem',
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.25)',
-                borderRadius: 'var(--r-sm)',
-                color: 'var(--c-red)',
-                fontSize: '0.85rem',
-              }}>
-                ⚠️ {error}
-              </p>
+                <div className="school-cards">
+                  {(['bbg', 'esg'] as const).map((s) => (
+                    <button
+                      key={s}
+                      className={`school-card${selectedSchool === s ? ` selected-${s}` : ''}`}
+                      onClick={() => selectSchool(s)}
+                    >
+                      <div
+                        className="school-card-abbr"
+                        style={{ color: selectedSchool === s ? SCHOOL_LABELS[s].color : 'var(--c-text)' }}
+                      >
+                        {SCHOOL_LABELS[s].short}
+                      </div>
+                      <div className="school-card-name">{SCHOOL_LABELS[s].full}</div>
+                    </button>
+                  ))}
+                </div>
+
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--c-muted)', marginBottom: '0.4rem', fontWeight: 500 }}>
+                  Zugangscode der Schule
+                </label>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder={selectedSchool ? `${selectedSchool}-wm2026` : 'Schule zuerst wählen'}
+                  value={schoolInput}
+                  onChange={(e) => setSchoolInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && confirmSchool()}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  disabled={!selectedSchool}
+                  style={{ fontSize: '1rem', letterSpacing: '0.05em' }}
+                />
+
+                {schoolError && (
+                  <p style={{
+                    marginTop: '0.75rem',
+                    padding: '0.65rem 0.9rem',
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.25)',
+                    borderRadius: 'var(--r-sm)',
+                    color: 'var(--c-red)',
+                    fontSize: '0.85rem',
+                  }}>
+                    ⚠️ {schoolError}
+                  </p>
+                )}
+
+                <button
+                  className="btn btn-primary"
+                  onClick={confirmSchool}
+                  disabled={!selectedSchool || !schoolInput.trim()}
+                  style={{ width: '100%', marginTop: '1rem', justifyContent: 'center', fontSize: '1rem', padding: '0.85rem' }}
+                >
+                  Weiter →
+                </button>
+
+                <p style={{ textAlign: 'center', color: 'var(--c-hint)', fontSize: '0.78rem', marginTop: '1.5rem' }}>
+                  Den Zugangscode bekommst du von deinem Lehrer 👋
+                </p>
+              </>
             )}
 
-            <button
-              className="btn btn-primary"
-              onClick={handleLogin}
-              disabled={loading || !code.trim()}
-              style={{ width: '100%', marginTop: '1rem', justifyContent: 'center', fontSize: '1rem', padding: '0.85rem', opacity: loading ? 0.7 : 1 }}
-            >
-              {loading ? '⏳ Lädt...' : 'Los geht\'s! →'}
-            </button>
+            {/* ── Step 2: personal login code ── */}
+            {step === 'code' && school && (
+              <>
+                <button
+                  onClick={() => { setStep('school'); setCode(''); setError('') }}
+                  style={{ background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', fontSize: '0.82rem', marginBottom: '1.25rem', padding: 0, display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  ← Schule wechseln
+                </button>
 
-            <p style={{ textAlign: 'center', color: 'var(--c-hint)', fontSize: '0.78rem', marginTop: '1.5rem' }}>
-              Kein Code? Frag deinen Lehrer! 👋
-            </p>
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                  <div style={{
+                    display: 'inline-block',
+                    padding: '0.3rem 1rem',
+                    background: selectedSchool === 'bbg' ? 'rgba(59,130,246,0.12)' : 'rgba(245,200,66,0.12)',
+                    border: `1px solid ${selectedSchool === 'bbg' ? 'rgba(59,130,246,0.3)' : 'rgba(245,200,66,0.3)'}`,
+                    borderRadius: '100px',
+                    fontSize: '0.78rem',
+                    color: school.color,
+                    marginBottom: '1rem',
+                  }}>
+                    🏫 {school.full}
+                  </div>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔐</div>
+                  <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2.8rem', color: 'var(--c-gold)', lineHeight: 1, marginBottom: '0.4rem' }}>
+                    Anmelden
+                  </h1>
+                  <p style={{ color: 'var(--c-muted)', fontSize: '0.9rem' }}>
+                    Gib deinen persönlichen Code ein
+                  </p>
+                </div>
+
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--c-muted)', marginBottom: '0.4rem', fontWeight: 500 }}>
+                  Dein Login-Code
+                </label>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder={selectedSchool === 'bbg' ? 'z.B. rasenrakete-gelb' : 'z.B. sturmheld-k1'}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  style={{ fontSize: '1.1rem', letterSpacing: '0.05em' }}
+                />
+
+                {error && (
+                  <p style={{
+                    marginTop: '0.75rem',
+                    padding: '0.65rem 0.9rem',
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.25)',
+                    borderRadius: 'var(--r-sm)',
+                    color: 'var(--c-red)',
+                    fontSize: '0.85rem',
+                  }}>
+                    ⚠️ {error}
+                  </p>
+                )}
+
+                <button
+                  className="btn btn-primary"
+                  onClick={handleLogin}
+                  disabled={loading || !code.trim()}
+                  style={{ width: '100%', marginTop: '1rem', justifyContent: 'center', fontSize: '1rem', padding: '0.85rem', opacity: loading ? 0.7 : 1 }}
+                >
+                  {loading ? '⏳ Lädt...' : 'Los geht\'s! →'}
+                </button>
+
+                <p style={{ textAlign: 'center', color: 'var(--c-hint)', fontSize: '0.78rem', marginTop: '1.5rem' }}>
+                  Kein Code? Frag deinen Lehrer! 👋
+                </p>
+
+                <div className="dsgvo-box">
+                  <p style={{ fontWeight: 600, color: 'var(--c-muted)', marginBottom: '0.35rem' }}>🔒 Datenschutz (DSGVO)</p>
+                  <p>⚠️ <strong>Nur Phantasienamen verwenden</strong> — keine echten Namen eingeben.</p>
+                  <p style={{ marginTop: '0.3rem' }}>Tipps & Namen bleiben lokal auf diesem Gerät. Keine personenbezogenen Daten werden übertragen.</p>
+                  <p style={{ marginTop: '0.3rem' }}>Keine Tracker · Keine Tracking-Cookies · Keine Werbung. <a href="/datenschutz" style={{ color: 'inherit', textDecoration: 'underline' }}>Mehr erfahren →</a></p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

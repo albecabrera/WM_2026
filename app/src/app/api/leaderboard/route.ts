@@ -1,25 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { getSchool, getClassCodesForSchool } from '@/lib/classes'
 
 export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 })
 
-  const classCode = req.nextUrl.searchParams.get('class')
+  const userSchool = getSchool(session.classCode)
+  // Admin can pass ?school= to scope; teachers/students auto-scoped to their school
+  const schoolParam = req.nextUrl.searchParams.get('school') as 'bbg' | 'esg' | null
+  const school = userSchool ?? schoolParam ?? 'bbg'
 
-  // Teachers can only see their class (unless admin)
-  const filterClass =
-    session.role === 'ADMIN'
-      ? classCode || undefined
-      : session.role === 'TEACHER'
-      ? session.classCode
-      : undefined
+  const schoolCodes = getClassCodesForSchool(school)
+  const filterClass = req.nextUrl.searchParams.get('class') || undefined
 
   const users = await prisma.user.findMany({
     where: {
-      role: 'STUDENT',
-      ...(filterClass ? { classCode: filterClass } : {}),
+      role: { in: ['STUDENT', 'TEACHER'] },
+      classCode: filterClass
+        ? { equals: filterClass }
+        : { in: schoolCodes },
     },
     include: {
       tips: { where: { points: { not: null } } },
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest) {
         id: u.id,
         name: u.name,
         classCode: u.classCode,
+        role: u.role,
         totalPoints: tipPoints + winnerPoints,
         tipCount: u.tips.length,
         exactResults: u.tips.filter((t) => t.points === 3).length,

@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   // Search by loginCode prefix (most reliable — loginCode = normalize(name) + class)
   const users = await prisma.user.findMany({
-    where: { role: 'STUDENT' },
+    where: { role: { in: ['STUDENT', 'TEACHER'] } },
     orderBy: [{ classCode: 'asc' }, { name: 'asc' }],
   })
 
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     }, { status: 409 })
 
   const user = matches[0]
-  const base = normalize(user.name) + user.classCode
+  const base = `${normalize(user.name)}-${user.classCode}`
 
   // Generate unique code
   let newCode = base

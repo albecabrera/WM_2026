@@ -7,7 +7,7 @@ import { PageBg } from '@/components/PageBg'
 export default async function LandingPage() {
   const session = await getSession()
   if (session) {
-    if (session.role === 'ADMIN' || session.role === 'TEACHER') redirect('/admin')
+    if (session.role === 'ADMIN') redirect('/admin')
     redirect('/dashboard')
   }
 
@@ -162,6 +162,9 @@ export default async function LandingPage() {
           </span>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <ThemeToggle />
+            <Link href="/dashboard" style={{ fontSize: '0.85rem', padding: '0.45rem 1.1rem', color: 'var(--c-muted)', textDecoration: 'none', border: '1px solid var(--c-border)', borderRadius: '8px' }}>
+              Dashboard
+            </Link>
             <Link href="/login" className="cta-btn" style={{ fontSize: '0.9rem', padding: '0.45rem 1.25rem', letterSpacing: '0.05em' }}>
               Anmelden →
             </Link>
@@ -175,7 +178,7 @@ export default async function LandingPage() {
 
         <h1 className="hero-title">WM 2026</h1>
         <p className="hero-sub">Tipp-Spiel</p>
-        <p className="hero-school">Elisabeth-Selbert-Gesamtschule Bonn</p>
+        <p className="hero-school">BBG &amp; ESG Bonn</p>
 
         <div className="date-pill">
           <strong>11. Juni</strong> – <strong>26. Juli 2026</strong>
@@ -207,7 +210,12 @@ export default async function LandingPage() {
         padding: '1.25rem', borderTop: '1px solid var(--c-border)',
         color: 'var(--c-hint)', fontSize: '0.75rem', letterSpacing: '0.08em',
       }}>
-        ESG Bonn · Klassen 5 & 6 · WM 2026
+        BBG &amp; ESG Bonn · WM 2026
+        <span style={{ display: 'block', marginTop: '0.35rem', fontSize: '0.7rem' }}>
+          🔒 Nur Phantasienamen · Daten bleiben lokal · Keine Tracker · Keine Tracking-Cookies
+          {' · '}
+          <a href="/datenschutz" style={{ color: 'inherit', textDecoration: 'underline' }}>Datenschutz</a>
+        </span>
       </footer>
     </>
   )

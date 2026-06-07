@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
     take: upcoming ? 10 : undefined,
   })
 
-  // Attach user's tip if student
-  if (session.role === 'STUDENT') {
+  // Attach the player's own tip (students and teachers both play)
+  if (session.role !== 'ADMIN') {
     const matchIds = matches.map((m) => m.id)
     const tips = await prisma.tip.findMany({
       where: { userId: session.id, matchId: { in: matchIds } },

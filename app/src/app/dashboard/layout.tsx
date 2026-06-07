@@ -4,6 +4,8 @@ import { getSession } from '@/lib/auth'
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
   if (!session) redirect('/login')
-  if (session.role === 'ADMIN' || session.role === 'TEACHER') redirect('/admin')
+  // Teachers compete too, so they use the player dashboard; only admins are
+  // routed straight to the admin panel.
+  if (session.role === 'ADMIN') redirect('/admin')
   return <>{children}</>
 }

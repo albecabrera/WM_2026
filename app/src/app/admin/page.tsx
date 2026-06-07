@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
+import { classLabel, getClassCodesForSchool } from '@/lib/classes'
 
 interface Match {
   id: string; matchNumber: number; phase: string; group?: string; round?: string
@@ -33,7 +34,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState<string | null>(null)
   const [msg, setMsg] = useState({ text: '', ok: true })
   const [newName, setNewName] = useState('')
-  const [newClass, setNewClass] = useState('6a')
+  const [newClass, setNewClass] = useState('gelb')
   const [createdCode, setCreatedCode] = useState('')
   const [winnerTeamId, setWinnerTeamId] = useState('')
   const [revealDone, setRevealDone] = useState(false)
@@ -48,6 +49,7 @@ export default function AdminPage() {
   const [penaltyPrompt, setPenaltyPrompt] = useState<{ matchId: string; homeTeam: Match['homeTeam']; awayTeam: Match['awayTeam'] } | null>(null)
   const [advancingPenalty, setAdvancingPenalty] = useState(false)
   const [sync, setSync] = useState<{ lastSyncAt: string | null; lastStatus: string | null; noKey: boolean } | null>(null)
+  const [adminSchool, setAdminSchool] = useState<'bbg' | 'esg'>('bbg')
 
   async function lookupOrResetCode(action: 'lookup' | 'reset' = 'lookup') {
     if (!resetQuery.trim()) return
@@ -97,12 +99,13 @@ export default function AdminPage() {
     } else if (tab === 'ko') {
       fetch('/api/admin/ko').then((r) => r.json()).then((d) => { if (Array.isArray(d)) setKoMatches(d) })
     } else if (tab === 'users') {
-      fetch('/api/admin').then((r) => r.json()).then((d) => { if (Array.isArray(d)) setUsers(d) })
+      fetch(`/api/admin?school=${adminSchool}`).then((r) => r.json()).then((d) => { if (Array.isArray(d)) setUsers(d) })
     } else if (tab === 'leaderboard') {
-      const url = filterClass !== 'all' ? `/api/leaderboard?class=${filterClass}` : '/api/leaderboard'
+      const base = `/api/leaderboard?school=${adminSchool}`
+      const url = filterClass !== 'all' ? `${base}&class=${filterClass}` : base
       fetch(url).then((r) => r.json()).then((d) => { if (Array.isArray(d)) setLeaderboard(d) })
     }
-  }, [tab, filterClass])
+  }, [tab, filterClass, adminSchool])
 
   async function saveResult(matchId: string) {
     const r = results[matchId]
@@ -242,6 +245,12 @@ export default function AdminPage() {
           <button onClick={() => { fetchLeaderboard(); startCelebration() }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.9rem' }}>
             🎉 Feier starten
           </button>
+          <Link href="/klassenliste" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+            📋 Klassenliste
+          </Link>
+          <Link href="/dashboard" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+            🏠 Dashboard
+          </Link>
           <ThemeToggle />
           <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Abmelden</a>
         </div>
@@ -285,7 +294,22 @@ export default function AdminPage() {
       )}
 
       <div className="container relative" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-        <h2 style={{ marginBottom: '0.5rem' }}>Admin-Panel</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+          <h2 style={{ margin: 0 }}>Admin-Panel</h2>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {(['bbg', 'esg'] as const).map((s) => (
+              <button key={s} onClick={() => { setAdminSchool(s); setFilterClass('all'); setNewClass(s === 'bbg' ? 'gelb' : 'k1') }} style={{
+                padding: '0.3rem 0.9rem', borderRadius: '6px', border: '1px solid',
+                borderColor: adminSchool === s ? (s === 'bbg' ? '#3b82f6' : 'var(--c-gold)') : 'var(--c-border)',
+                background: adminSchool === s ? (s === 'bbg' ? 'rgba(59,130,246,0.12)' : 'rgba(245,200,66,0.12)') : 'transparent',
+                color: adminSchool === s ? (s === 'bbg' ? '#3b82f6' : 'var(--c-gold)') : 'var(--c-muted)',
+                cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.85rem', fontWeight: 700,
+              }}>
+                {s.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Estado del auto-sync por internet */}
         {sync && (
@@ -492,14 +516,14 @@ export default function AdminPage() {
                 Öffnet die Feier-Seite mit dem Tipp-Spiel-Gewinner (Schüler mit meisten Punkten).
               </p>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                {['all', '5a', '5b', '6a', '6b'].map((c) => (
+                {['all', ...getClassCodesForSchool(adminSchool)].map((c) => (
                   <button key={c} onClick={() => setFilterClass(c)} style={{
                     ...tabStyle(c),
                     borderColor: filterClass === c ? 'var(--c-gold)' : 'var(--c-border)',
                     background: filterClass === c ? 'rgba(245,200,66,0.1)' : 'transparent',
                     color: filterClass === c ? 'var(--c-gold)' : 'var(--c-muted)',
                   }}>
-                    {c === 'all' ? 'Alle' : `Klasse ${c.toUpperCase()}`}
+                    {c === 'all' ? 'Alle' : `${classLabel(c)}`}
                   </button>
                 ))}
               </div>
@@ -517,7 +541,7 @@ export default function AdminPage() {
             <div className="card" style={{ marginBottom: '1.5rem', border: '1px solid rgba(245,200,66,0.15)' }}>
               <h4 style={{ marginBottom: '0.4rem' }}>🔍 Code nachschlagen / zurücksetzen</h4>
               <p style={{ color: 'var(--c-muted)', fontSize: '0.82rem', marginBottom: '1rem' }}>
-                Schreibe <code style={{ color: 'var(--c-gold)' }}>#Nachname</code> um den Login-Code zu finden oder zurückzusetzen.
+                Schreibe <code style={{ color: 'var(--c-gold)' }}>#Fantasiename</code> um den Login-Code zu finden oder zurückzusetzen.
               </p>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 <input
@@ -552,7 +576,7 @@ export default function AdminPage() {
                       background: 'var(--c-surface2)', borderRadius: 'var(--r-sm)', flexWrap: 'wrap',
                     }}>
                       <span style={{ fontWeight: 500, flex: 1 }}>{u.name}</span>
-                      <span className="badge badge-muted">{(u.classCode ?? '').toUpperCase()}</span>
+                      <span className="badge badge-muted">{classLabel(u.classCode ?? '')}</span>
                       <code style={{ color: 'var(--c-gold)', fontSize: '0.9rem' }}>{u.loginCode ?? u.newCode}</code>
                       <button className="btn btn-ghost" style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
                         onClick={() => { setResetQuery(`#${u.name}`); lookupOrResetCode('reset') }}>
@@ -568,14 +592,14 @@ export default function AdminPage() {
               <h4 style={{ marginBottom: '1rem' }}>Neuen Schüler anlegen</h4>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
                 <div style={{ flex: '1 1 200px' }}>
-                  <label style={{ fontSize: '0.8rem', color: 'var(--c-muted)', display: 'block', marginBottom: '4px' }}>Nachname</label>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--c-muted)', display: 'block', marginBottom: '4px' }}>Fantasiename</label>
                   <input className="input" value={newName} onChange={(e) => setNewName(e.target.value)}
-                    placeholder="z.B. Müller" onKeyDown={(e) => e.key === 'Enter' && createUser()} />
+                    placeholder="z.B. Rasenrakete" onKeyDown={(e) => e.key === 'Enter' && createUser()} />
                 </div>
                 <div style={{ flex: '0 0 120px' }}>
                   <label style={{ fontSize: '0.8rem', color: 'var(--c-muted)', display: 'block', marginBottom: '4px' }}>Klasse</label>
                   <select className="input" value={newClass} onChange={(e) => setNewClass(e.target.value)}>
-                    {['5a', '5b', '6a', '6b'].map((c) => <option key={c} value={c}>{c}</option>)}
+                    {getClassCodesForSchool(adminSchool).map((c) => <option key={c} value={c}>{classLabel(c)}</option>)}
                   </select>
                 </div>
                 <button className="btn btn-primary" onClick={createUser}>Anlegen</button>
@@ -603,7 +627,7 @@ export default function AdminPage() {
                   {users.map((u) => (
                     <tr key={u.id}>
                       <td style={{ fontWeight: 500 }}>{u.name}</td>
-                      <td><span className="badge badge-muted">{u.classCode.toUpperCase()}</span></td>
+                      <td><span className="badge badge-muted">{classLabel(u.classCode)}</span></td>
                       <td><code style={{ color: 'var(--c-gold)', fontSize: '0.9rem' }}>{u.loginCode}</code></td>
                       <td>
                         <img src={`/api/admin/qr?code=${u.loginCode}`} alt={`QR ${u.loginCode}`}
@@ -621,14 +645,14 @@ export default function AdminPage() {
         {tab === 'leaderboard' && (
           <div>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              {['all', '5a', '5b', '6a', '6b'].map((c) => (
+              {['all', ...getClassCodesForSchool(adminSchool)].map((c) => (
                 <button key={c} onClick={() => setFilterClass(c)} style={{
                   ...tabStyle(c),
                   borderColor: filterClass === c ? 'var(--c-gold)' : 'var(--c-border)',
                   background: filterClass === c ? 'rgba(245,200,66,0.1)' : 'transparent',
                   color: filterClass === c ? 'var(--c-gold)' : 'var(--c-muted)',
                 }}>
-                  {c === 'all' ? 'Alle Klassen' : `Klasse ${c.toUpperCase()}`}
+                  {c === 'all' ? 'Alle Klassen' : classLabel(c)}
                 </button>
               ))}
               <button className="btn btn-ghost" onClick={fetchLeaderboard} style={{ marginLeft: 'auto', fontSize: '0.82rem' }}>
@@ -654,7 +678,7 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td style={{ fontWeight: 500 }}>{u.name}</td>
-                      <td><span className="badge badge-muted">{u.classCode.toUpperCase()}</span></td>
+                      <td><span className="badge badge-muted">{classLabel(u.classCode)}</span></td>
                       <td style={{ textAlign: 'right', color: 'var(--c-muted)' }}>{u.tipCount}</td>
                       <td style={{ textAlign: 'right', color: 'var(--c-gold)' }}>{u.exactResults}</td>
                       <td style={{ textAlign: 'right', fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: 'var(--c-gold)' }}>{u.totalPoints}</td>
