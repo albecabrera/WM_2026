@@ -1,218 +1,292 @@
-# WM 2026 Tipp-Spiel · ESG Bonn
+# WM 2026 Tipp-Spiel · BBG & ESG Bonn
 
-App de pronósticos para la Copa del Mundo 2026. Klassen 5 & 6, Elisabeth-Selbert-Gesamtschule Bonn.
+Schulinternes Tipp-Spiel zur FIFA WM 2026 für das **BBG** (6 Farb-Klassen) und die **Elisabeth-Selbert-Gesamtschule** (Klasse 1–6). Schüler und Lehrkräfte tippen Spielergebnisse und treten gegeneinander an.
 
-## Estructura
+> **⚠️ Datenschutz-Grundsatz:** Es werden ausschließlich Phantasienamen verwendet.  
+> Echte Namen, E-Mail-Adressen oder Passwörter werden niemals eingegeben, gespeichert oder übertragen.  
+> Die Zuordnung Code ↔ echter Schüler bleibt **offline beim Lehrer** (DSGVO-konform).
 
-```
-WM_2026/
-├── app/              Next.js 14 — App completo (full-stack)
-│   ├── prisma/       Schema + seed (SQLite)
-│   └── src/app/      App Router pages & API routes
-├── preview/          Prototipo HTML standalone (sin servidor)
-└── plan.md           Roadmap EPICs + plan de revisión
-```
+---
 
-## Inicio rápido
+## Inhalt
+
+- [Schnellstart](#schnellstart)
+- [Login-Codes](#login-codes)
+- [Funktionsübersicht](#funktionsübersicht)
+- [Datenschutz & DSGVO](#datenschutz--dsgvo)
+- [Tech-Stack](#tech-stack)
+- [Punktesystem](#punktesystem)
+- [Auto-Sync (Ergebnisse aus dem Internet)](#auto-sync)
+- [API-Routen](#api-routen)
+- [Deployment](#deployment)
+- [Umgebungsvariablen](#umgebungsvariablen)
+
+---
+
+## Schnellstart
 
 ```bash
 cd app
 npm install
-cp .env.example .env          # editar JWT_SECRET con un valor aleatorio
+cp .env.example .env          # JWT_SECRET setzen: openssl rand -hex 32
 npx prisma db push
-npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
-npm run dev                   # http://localhost:3000 (o 3001 si está ocupado)
+npm run db:seed
+npm run dev                   # http://localhost:3000
 ```
 
-> **JWT_SECRET**: cualquier string largo aleatorio, p. ej. `openssl rand -hex 32`
+---
 
 ## Login-Codes
 
-6 Klassen (Farben), je 30 Schüler + 2 Lehrer. **Nur Phantasienamen** — die
-Zuordnung zu echten Schülern bleibt offline beim Lehrer (DSGVO-konform).
-
 ### Admin
 
-| Code        |
-|-------------|
-| `admin2026` |
+| Code        | Beschreibung |
+|-------------|-------------|
+| `admin2026` | Zugang zum vollständigen Admin-Panel |
 
-### Lehrer (alle 12)
+---
 
-| Klasse    | Code 1                         | Code 2                        |
-|-----------|--------------------------------|-------------------------------|
-| **gelb**  | `torpantherspur-gelb`          | `rasenzauberwind-gelb`        |
-| **schwarz** | `ballgepardspur-schwarz`     | `netzfederflug-schwarz`       |
-| **gruen** | `elferkompass-gruen`           | `torregenflug-gruen`          |
-| **blau**  | `flankenmeteorflug-blau`       | `ballvulkanwind-blau`         |
-| **rot**   | `netzfuchsspur-rot`            | `rasenphantasie-rot`          |
-| **weiss** | `pokalwirbel-weiss`            | `fanfarenblitz-weiss`         |
+### BBG — Lehrkräfte (12 gesamt, 2 pro Klasse)
 
-### Schüler — Beispiele (je 2 pro Klasse)
+| Klasse       | Code 1                      | Code 2                    |
+|--------------|-----------------------------|---------------------------|
+| **gelb**     | `torpantherspur-gelb`       | `rasenzauberwind-gelb`    |
+| **schwarz**  | `ballgepardspur-schwarz`    | `netzfederflug-schwarz`   |
+| **gruen**    | `elferkompass-gruen`        | `torregenflug-gruen`      |
+| **blau**     | `flankenmeteorflug-blau`    | `ballvulkanwind-blau`     |
+| **rot**      | `netzfuchsspur-rot`         | `rasenphantasie-rot`      |
+| **weiss**    | `pokalwirbel-weiss`         | `fanfarenblitz-weiss`     |
 
-| Klasse    | Beispiel 1                | Beispiel 2                  |
-|-----------|---------------------------|-----------------------------|
-| **gelb**  | `rasenrakete-gelb`        | `ballblitz-gelb`            |
-| **schwarz** | `netzfalke-schwarz`     | `elferstern-schwarz`        |
-| **gruen** | `rasenblitz-gruen`        | `ballstern-gruen`           |
-| **blau**  | `torgepard-blau`          | `rasenvulkan-blau`          |
-| **rot**   | `torrakete-rot`           | `rasenfeder-rot`            |
-| **weiss** | `torwirbelwind-weiss`     | `rasenmeteorflug-weiss`     |
+### BBG — Schüler-Beispiele (je 2 pro Klasse)
 
-> Alle Schüler-Codes: `{phantasiename}-{farbe}` — vollständige Liste in `prisma/seed.ts`.
+| Klasse       | Beispiel 1                | Beispiel 2                |
+|--------------|---------------------------|---------------------------|
+| **gelb**     | `rasenrakete-gelb`        | `ballblitz-gelb`          |
+| **schwarz**  | `netzfalke-schwarz`       | `elferstern-schwarz`      |
+| **gruen**    | `rasenblitz-gruen`        | `ballstern-gruen`         |
+| **blau**     | `torgepard-blau`          | `rasenvulkan-blau`        |
+| **rot**      | `torrakete-rot`           | `rasenfeder-rot`          |
+| **weiss**    | `torwirbelwind-weiss`     | `rasenmeteorflug-weiss`   |
 
-## Datenschutz (DSGVO)
+> Alle 180 BBG-Schüler-Codes: `{phantasiename}-{farbe}` — vollständige Liste in `prisma/seed.ts`.
 
-- **Nur Phantasienamen** — keine echten Schüler- oder Lehrernamen in der App.
-  Die Zuordnung Code ↔ Person bleibt offline beim Lehrer.
-- **Daten verlassen das Gerät nicht** — SQLite läuft lokal; keine Drittanbieter-Dienste.
-- **Keine Tracking-Cookies, keine Tracker, keine Werbung.**
-  (Session-Cookie technisch notwendig für Login — kein Tracking, kein Drittanbieter.)
-- Hinweis wird beim Login angezeigt: _"Nur Phantasienamen verwenden."_
+---
 
-## Funcionalidades
+### ESG — Lehrkräfte (13 gesamt; Klasse 3 hat 3 Lehrkräfte)
 
-### Para alumnos
-- Portada premium de bienvenida con estadísticas del torneo
-- Login con código personal (sin contraseña)
-- Tutorial paso a paso tras el login (alemán fácil para 5/6 grado)
-- Banner fijo de aviso: tipear 5 min antes del pitido
-- Pronósticos de fase de grupos (72 partidos)
-- **Barra de progreso por grupo** ("3 von 6 getippt")
-- Pronósticos de rondas KO (R32 → Final)
-- Pronóstico del campeón del torneo (hasta el 11-Jun)
-- Tabla de clasificación con puntos en tiempo real
-- Actualización automática cada 30 segundos + toast de resultados
-- Badge `● LIVE` en partidos en curso
-- **Modo claro / oscuro** (toggle ☀️/🌙, se recuerda en localStorage)
-- Diseño responsive (1 columna en móvil/tablet)
+| Klasse       | Code 1                    | Code 2                  | Code 3             |
+|--------------|---------------------------|-------------------------|--------------------|
+| **k1**       | `taktikmeister-k1`        | `spielstratege-k1`      | —                  |
+| **k2**       | `angriffsleiter-k2`       | `defensivheld-k2`       | —                  |
+| **k3**       | `spielvisionaer-k3`       | `offensivcoach-k3`      | `kampfkommando-k3` |
+| **k4**       | `defensivgeist-k4`        | `spielleitung-k4`       | —                  |
+| **k5**       | `sturmfuhrer-k5`          | `abwehrstratege-k5`     | —                  |
+| **k6**       | `flankencoach-k6`         | `spielanalyst-k6`       | —                  |
 
-### Para maestros / admin
-- Panel de administración con 5 pestañas
-- Cargar resultados de grupos y KO
-- **Auto-avance del bracket KO**: al cargar el resultado de un partido KO,
-  el ganador pasa automáticamente a la siguiente ronda
-- **Modal de penales**: si un partido KO termina empatado, aparece un modal
-  para elegir quién ganó (prórroga/penales) y avanzar manualmente
-- Semifinal: el ganador va al Final, el perdedor al partido por el 3er puesto
-- Revelar campeón con pantalla de celebración + confeti
-- Filtrar celebración por clase
-- Ver códigos QR de cada alumno (para imprimir)
-- **Resetear código de alumno con `#nombre`**: escribir `#Müller` en el panel → busca automáticamente → genera nuevo código único
+### ESG — Schüler-Beispiele (je 2 pro Klasse)
 
-### Reseteo de código (`#nombre`)
-Desde el panel de admin, pestaña "Schüler verwalten":
-1. Escribir `#` seguido del apellido del alumno (con o sin Umlaute)
-2. Clic en "Suchen" — muestra el alumno con su código actual
-3. Clic en "↺ Code ändern" — genera un nuevo código único
+| Klasse   | Beispiel 1           | Beispiel 2            |
+|----------|----------------------|-----------------------|
+| **k1**   | `sturmheld-k1`       | `torjager-k1`         |
+| **k2**   | `sturmheld-k2`       | `torjager-k2`         |
+| **k3**   | `sturmheld-k3`       | `torjager-k3`         |
+| **k4**   | `sturmheld-k4`       | `torjager-k4`         |
+| **k5**   | `sturmheld-k5`       | `torjager-k5`         |
+| **k6**   | `sturmheld-k6`       | `torjager-k6`         |
 
-> Funciona con nombres alemanes: `#Müller` = `#Mueller` = `#muller`
+> Alle 180 ESG-Schüler-Codes: `{phantasiename}-{klassencode}` — vollständige Liste in `prisma/seed.ts`.
 
-## Puntuación
+---
 
-| Resultado | Puntos |
-|-----------|--------|
-| Resultado exacto (ej. 2-1 = 2-1) | +3 |
-| Tordifferenz correcta (ej. 3-2 y tipé 2-1 → diff +1) | +2 |
-| Tendencia correcta (victoria/empate/derrota) | +1 |
-| Campeón correcto | +5 |
+## Funktionsübersicht
 
-## API routes (reales)
+| # | Funktion | Beschreibung | Rollen |
+|---|----------|-------------|--------|
+| 1 | **2-Schritt-Login** | Schule wählen → Schulcode eingeben → persönlichen Code eingeben | Alle |
+| 2 | **Multi-Schul-Unterstützung** | BBG und ESG vollständig getrennt — eigene Ranglisten pro Schule | Alle |
+| 3 | **Dashboard** | Übersicht: Punkte, Rang, Tipps; Tutorial-Modal für Erstbesucher | Schüler, Lehrer |
+| 4 | **Gruppen-Tipps** | Tippen auf alle 104 WM-Spiele (Heim/Auswärts) — gesperrt 5 Min. vor Anpfiff | Schüler, Lehrer |
+| 5 | **Fortschrittsbalken** | Zeigt „X von Y getippt" pro Gruppe | Schüler, Lehrer |
+| 6 | **Weltmeister-Tipp** | Einmaliger Tipp auf den WM-Sieger (+5 Punkte) bis Turnierbeginn | Schüler, Lehrer |
+| 7 | **KO-Runden** | Anzeige R32 → R16 → QF → SF → Finale mit Live-Ergebnissen | Schüler, Lehrer |
+| 8 | **Live-Badge** | `● LIVE` bei laufenden Spielen; automatische Aktualisierung alle 30 Sek. | Alle |
+| 9 | **Rangliste — Einzelwertung** | Punkte-Rangliste aller Mitspieler der eigenen Schule; Filter nach Klasse; Top-3-Podium | Alle |
+| 10 | **Rangliste — Gruppenwertung** | Klassenrangliste mit Gesamtpunkten, Durchschnitt, bestem Spieler | Alle |
+| 11 | **Hell-/Dunkel-Modus** | Toggle ☀️/🌙; wird in `localStorage` gespeichert | Alle |
+| 12 | **Admin — Ergebnisse** | Spielergebnisse manuell eintragen + automatische Punkteberechnung | Admin |
+| 13 | **Admin — KO-Bracket** | Teams manuell einsetzen; Auto-Advance nach jedem Ergebnis | Admin |
+| 14 | **Admin — Elfmeterschießen** | Bei Unentschieden im KO: Gewinner-Modal → manueller Advance | Admin |
+| 15 | **Admin — Turniersieger** | WM-Gewinner offiziell setzen → +5-Punkte-Berechnung für alle | Admin |
+| 16 | **Admin — Schüler verwalten** | Neue Phantasienamen anlegen, Codes einsehen | Admin |
+| 17 | **Admin — Code-Reset** | Vergessenen Code via `#Name` suchen und neu generieren | Admin |
+| 18 | **Admin — QR-Codes** | QR-Code pro Login-Code generieren (zum Ausdrucken/Aushängen) | Admin |
+| 19 | **Admin — Schul-Umschaltung** | Alle Admin-Ansichten getrennt nach BBG / ESG filterbar | Admin |
+| 20 | **Klassenliste (Druck)** | Druckbare Liste: Klasse → Lehrkräfte → Schüler mit Codes; PDF-Export | Admin, Lehrer |
+| 21 | **Auto-Sync** | Server holt WM-Ergebnisse automatisch von `football-data.org` (Server→Server, kein Browser) | — |
+| 22 | **Celebrations-Seite** | Siegerehrung mit Animation und Konfetti nach Turnierende | Admin |
+| 23 | **Datenschutzseite** | Vollständige DSGVO-Erklärung unter `/datenschutz` | Alle (öffentlich) |
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/api/auth` | Login con código |
-| POST | `/api/auth/logout` | Logout |
-| GET | `/api/me` | Stats del usuario (puntos, rank, tipps) |
-| GET | `/api/matches?phase=GROUP` | Partidos por fase (GROUP, ROUND_OF_32, …) |
-| GET | `/api/teams` | Los 48 equipos |
-| POST | `/api/tips` | Guardar pronóstico de partido |
-| GET/POST | `/api/tips/winner` | Ver/guardar pronóstico de campeón |
-| GET | `/api/leaderboard` | Tabla de clasificación (`?class=6a` opcional) |
-| POST | `/api/results` | (Admin/Lehrer) Cargar resultado + auto-avance KO |
-| GET/PUT | `/api/admin/ko` | (Admin/Lehrer) Ver/asignar equipos KO |
-| POST | `/api/admin/advance` | (Admin/Lehrer) Avance manual del ganador (penales) |
-| GET/POST | `/api/admin` | (Admin/Lehrer) Listar/crear alumnos |
-| POST | `/api/admin/reset-code` | (Admin/Lehrer) Buscar/resetear código de alumno |
-| GET | `/api/admin/qr` | (Admin/Lehrer) Generar QR PNG de código |
-| POST | `/api/results/winner` | (Admin/Lehrer) Revelar campeón + award puntos |
-| GET | `/api/sync` | Auto-sync con la API de fútbol (throttle 5 min) |
-| POST | `/api/sync?force=1` | (Admin/Lehrer) Forzar sync inmediato |
+---
 
-> Todos los endpoints admin devuelven `403 Keine Berechtigung` a alumnos.
+## Datenschutz & DSGVO
 
-## Bracket KO (auto-avance)
+### Was gespeichert wird
 
-Al cargar el resultado de un partido KO en `/api/results`:
+| Tabelle | Gespeicherte Felder | Bewertung |
+|---------|---------------------|-----------|
+| `User` | Phantasiename, Klassencode, Login-Code, Rolle | ✅ Kein personenbezogenes Datum |
+| `Tip` | User-ID (intern), Match-ID, Heim/Auswärts-Tore, Punkte | ✅ Nur Zahlen |
+| `TournamentWinnerTip` | User-ID (intern), Team-ID, Punkte | ✅ Nur Zahlen |
+| `Match` | Spielpaarung, Datum, Ergebnis, Status | ✅ Öffentliche Spieldaten |
+| `Team` | Nationalmannschaft, Kürzel, Emoji | ✅ Öffentliche Daten |
+| `SyncState` | Letzter Sync-Zeitstempel | ✅ Nur Systemdaten |
 
-- **Victoria clara** → el ganador se asigna automáticamente al slot correcto del
-  siguiente partido (R32 #73–88 → R16 #89–96 → QF #97–100 → SF #101–102 → Final #104).
-- **Empate** → la respuesta trae `needsPenaltyWinner: true`; el admin elige el ganador
-  en el modal y se llama `/api/admin/advance`.
-- **Semifinales** (#101, #102) → ganador al Final (#104), perdedor al 3er puesto (#103).
+### Was niemals gespeichert wird
 
-## Auto-sync por internet (resultados automáticos)
+Echte Namen · E-Mail-Adressen · Geburtsdatum · IP-Adressen · Passwörter · Standortdaten · Gerätedaten · Nutzungszeiten
 
-La app puede actualizarse **sola** con los resultados reales de la WM 2026 — el maestro
-no carga nada. Cuando alguien abre la app, se consulta una API de fútbol, se actualizan
-marcadores y equipos que avanzan (octavos, cuartos, semis, final), y se recalculan los puntos.
+### Technische Maßnahmen
 
-**Cómo activarlo:**
+| Maßnahme | Umsetzung |
+|----------|----------|
+| Keine externen Tracker | Kein Google Analytics, Meta Pixel, Hotjar o.Ä. |
+| Keine Google Fonts CDN | Bebas Neue + DM Sans **selbst gehostet** in `public/fonts/` — keine IP an Google übermittelt (vgl. LG München I, 20.01.2022, Az. 3 O 17493/20) |
+| Lokale Datenbank | SQLite auf Schulrechner (`file:./dev.db`) — kein Cloud-Dienst |
+| Kein externer Auth-Dienst | Eigenes JWT-System, rein lokal |
+| `httpOnly`-Cookie | Kein JavaScript-Zugriff auf Session-Token |
+| Schulcode clientseitig | Schulpasswort (`bbg-wm2026` / `esg-wm2026`) wird **niemals** an den Server übertragen |
+| Lehrkraft-Datentrennung | Lehrer sieht ausschließlich eigene Klasse in Klassenliste und Admin-Bereich |
+| Externe API servergesteuert | `football-data.org`-Abfragen nur Server→Server — Browser kontaktiert niemals externe APIs |
 
-1. Crear una clave gratis en <https://www.football-data.org/client/register>
-2. Agregarla al `.env`:
+---
+
+## Tech-Stack
+
+### Frontend
+
+| Technologie | Version | Zweck |
+|-------------|---------|-------|
+| **Next.js** | 14.2 | React-Framework — App Router, Server Components, API Routes |
+| **React** | 18 | UI-Bibliothek |
+| **TypeScript** | 5 | Typsicherheit |
+| **CSS (plain)** | — | Styling via CSS-Variablen + `globals.css` — kein Tailwind, kein CSS-in-JS |
+| **clsx** | 2.1 | Bedingte Klassen-Namen |
+
+### Backend / API
+
+| Technologie | Version | Zweck |
+|-------------|---------|-------|
+| **Next.js API Routes** | 14.2 | REST-Endpunkte (`route.ts`) |
+| **Prisma ORM** | 5.10 | Typsicherer Datenbankzugriff |
+| **SQLite** | — | Lokale Datenbank — kein externer DB-Server |
+| **jsonwebtoken** | 9 | JWT-Generierung und -Verifikation |
+| **bcryptjs** | 2.4 | Hashing-Bibliothek |
+| **cookies-next** | 4.1 | `httpOnly`-Cookie-Management |
+| **qrcode** | 1.5 | QR-Code-Generierung (lokal, kein Drittdienst) |
+
+### Fonts (self-hosted)
+
+| Font | Datei | Zweck |
+|------|-------|-------|
+| **Bebas Neue** | `public/fonts/bebas-neue-latin.woff2` | Display-Font (Titel, Zahlen) |
+| **DM Sans** (Variable) | `public/fonts/dm-sans-latin.woff2` | Body-Font (400–700) |
+| **DM Sans Ext** | `public/fonts/dm-sans-latin-ext.woff2` | Erweiterte Zeichensätze |
+
+### Architekturmuster
+
+- **App Router** (Next.js 14) — Server Components by default, `'use client'` nur wo nötig
+- **Container/Presentational** — Seiten als Server Components, interaktive Teile als Client Components
+- **REST** — einfache `GET/POST`-Endpunkte
+- **JWT + `httpOnly`-Cookie** — Session ohne `localStorage`-Token
+- **Schul-Isolation** — Schule wird serverseitig aus `classCode` abgeleitet (`getSchool()`), nie vom Client
+
+---
+
+## Punktesystem
+
+| Tipp-Ergebnis | Punkte |
+|---------------|--------|
+| Genaues Ergebnis (z.B. 2:1 = 2:1) | **+3** |
+| Richtige Tordifferenz (z.B. 3:2 statt 2:1) | **+2** |
+| Richtige Tendenz (Sieg / Unentschieden / Niederlage) | **+1** |
+| Weltmeister richtig getippt | **+5** |
+
+### Wertungen
+
+- 🎽 **Gruppensieger** — Beste(r) pro Klasse
+- 👑 **Jahrgangssieger** — Beste(r) aller Klassen (schulweit)
+- 🏅 **Beste Gruppe** — Klasse mit den meisten Gesamtpunkten
+
+---
+
+## Auto-Sync
+
+Die App aktualisiert WM-Ergebnisse automatisch — der Lehrer muss nichts manuell eintragen.
+
+**Aktivierung:**
+1. Kostenloser API-Schlüssel unter <https://www.football-data.org/client/register>
+2. In `.env` eintragen:
    ```env
-   FOOTBALL_API_KEY="tu-clave"
+   FOOTBALL_API_KEY="dein-schluessel"
    ```
-3. Reiniciar la app. Listo — en el panel admin aparece `🌐 Auto-Sync aktiv`.
+3. App neu starten → im Admin-Panel erscheint `🌐 Auto-Sync aktiv`
 
-**Cómo funciona:**
-- `/api/sync` consulta `football-data.org` (competición `WC`), con **throttle de 5 min**.
-- Lo dispara el cliente al abrir el dashboard/admin → cero acción del maestro.
-- Equipos mapeados a alemán por código FIFA (`src/lib/teams-data.ts`); si falta uno,
-  usa el nombre de la API + 🏳 como fallback.
-- Partidos sincronizados por `externalId` (estable). Al primer import, los partidos
-  placeholder sin tipps se borran.
-- **Sin clave**, la app sigue funcionando en modo manual (cargar resultados a mano).
+**Funktionsweise:**
+- `/api/sync` fragt `football-data.org` ab (Throttle: 5 Min.)
+- Wird vom Client beim Öffnen von Dashboard/Admin ausgelöst
+- Nur Server→Server — keine Schülerdaten werden übermittelt
+- Ohne Schlüssel: App läuft im manuellen Modus
 
-> Variables opcionales: `FOOTBALL_API_BASE` (default v4), `FOOTBALL_API_COMPETITION` (default `WC`).
-> Para sync aunque nadie esté online: agregar un cron (Vercel Pro) o GitHub Action que
-> haga `GET /api/sync` cada 10 min.
+---
 
-## Variables de entorno
+## API-Routen
 
-```env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="min-32-zeichen-langer-zufallsstring"   # PFLICHT — App startet sonst nicht
-NEXT_PUBLIC_BASE_URL="http://localhost:3000"
-# Optional — aktiviert Auto-Sync der WM-Ergebnisse:
-FOOTBALL_API_KEY="clave-de-football-data.org"
-```
+| Methode | Route | Beschreibung | Rolle |
+|---------|-------|-------------|-------|
+| POST | `/api/auth` | Login mit Phantasiecode | Alle |
+| GET | `/api/auth/logout` | Logout (Cookie löschen) | Alle |
+| GET | `/api/me` | Eigene Stats (Punkte, Rang, Tipps) | Alle |
+| GET | `/api/matches` | Spiele nach Phase (`?phase=GROUP`) | Alle |
+| GET | `/api/teams` | Alle 48 Teams | Alle |
+| POST | `/api/tips` | Tipp speichern | Schüler, Lehrer |
+| GET/POST | `/api/tips/winner` | Weltmeister-Tipp lesen/speichern | Schüler, Lehrer |
+| GET | `/api/leaderboard` | Rangliste (`?school=bbg&class=gelb`) | Alle |
+| GET | `/api/leaderboard/groups` | Klassenrangliste | Alle |
+| POST | `/api/results` | Ergebnis eintragen + Auto-Advance KO | Admin |
+| POST | `/api/results/winner` | Weltmeister offiziell setzen | Admin |
+| GET/PUT | `/api/admin/ko` | KO-Teams einsehen/zuweisen | Admin |
+| POST | `/api/admin/advance` | KO-Gewinner manuell vorrücken (Elfmeter) | Admin |
+| GET/POST | `/api/admin` | Schüler auflisten/anlegen | Admin, Lehrer |
+| POST | `/api/admin/reset-code` | Login-Code suchen/zurücksetzen | Admin |
+| GET | `/api/admin/qr` | QR-Code-PNG generieren | Admin |
+| GET | `/api/admin/klassenliste` | Klassenliste (Lehrer: eigene Klasse) | Admin, Lehrer |
+| GET | `/api/sync` | Auto-Sync-Status + Sync auslösen | Alle |
+| POST | `/api/sync?force=1` | Sofort-Sync erzwingen | Admin, Lehrer |
 
-> **JWT_SECRET generieren:** `openssl rand -hex 32`
+---
 
-## Deployment (lokal — empfohlen für Schulbetrieb)
+## Deployment
 
-Lokaler Betrieb ist die empfohlene Option: Daten verlassen das Schulnetz nicht (DSGVO).
+### Lokal (empfohlen für Schulbetrieb)
+
+Daten verlassen das Schulnetz nicht — DSGVO-konform.
 
 ```bash
 cd app
 npm install
-cp .env.example .env       # JWT_SECRET setzen (openssl rand -hex 32)
+cp .env.example .env       # JWT_SECRET setzen
 npx prisma db push
-npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
-npm run build
-npm start                  # http://localhost:3000
+npm run db:seed
+npm run dev                # Entwicklung: http://localhost:3000
 ```
 
-Zugänglich für alle Schüler im selben WLAN: `http://<IP-des-Schulrechners>:3000`
+Alle Schüler im selben WLAN erreichbar unter: `http://<IP-Schulrechner>:3000`
 
-### Deployment auf Vercel (optional)
+### Vercel (optional, nur bei externem Zugriff)
 
-Nur wenn externer Zugriff nötig. In diesem Fall:
-- Region auf **Frankfurt (`fra1`)** setzen (EU-Server, DSGVO)
+- Region auf **Frankfurt (`fra1`)** setzen (EU-Server)
 - [Data Processing Agreement mit Vercel](https://vercel.com/legal/dpa) abschließen (kostenlos)
-- Dieselben Umgebungsvariablen in Vercel hinterlegen
+- Umgebungsvariablen im Vercel-Dashboard hinterlegen
 
 ```json
 {
@@ -222,14 +296,44 @@ Nur wenn externer Zugriff nötig. In diesem Fall:
 }
 ```
 
-## Tech stack
+---
 
-- **Next.js 14** — App Router, Server Components
-- **Prisma 5** + **SQLite** — ORM + lokale Datenbank (kein externer DB-Server)
-- **JWT** via `jsonwebtoken` + `cookies-next` (Session-Cookie, kein Tracking)
-- **QR codes** via `qrcode` npm package (lokal generiert)
-- **Tema claro/oscuro** — CSS custom properties + `[data-theme]` en `<html>`
+## Umgebungsvariablen
 
-## CI
+```env
+# Pflicht — App wirft Fehler beim Start wenn nicht gesetzt
+JWT_SECRET="min-32-zeichen-langer-zufallsstring"   # openssl rand -hex 32
 
-GitHub Actions (`ci.yml`) corre `tsc --noEmit` en cada push/PR a `main`.
+# Prisma (Standard: lokale SQLite-Datei)
+DATABASE_URL="file:./dev.db"
+
+# Optional — aktiviert automatischen WM-Ergebnis-Sync
+FOOTBALL_API_KEY="schluessel-von-football-data.org"
+```
+
+---
+
+## Projektstruktur
+
+```
+WM_2026/
+├── app/
+│   ├── prisma/
+│   │   ├── schema.prisma       Datenbankschema (SQLite)
+│   │   └── seed.ts             Alle Nutzer + Spielplan anlegen
+│   ├── public/
+│   │   └── fonts/              Self-hosted Webfonts (DSGVO)
+│   └── src/
+│       ├── app/                Next.js App Router
+│       │   ├── api/            REST-Endpunkte
+│       │   ├── admin/          Admin-Panel
+│       │   ├── dashboard/      Schüler-Dashboard
+│       │   ├── leaderboard/    Rangliste
+│       │   ├── klassenliste/   Druckbare Klassenliste
+│       │   ├── datenschutz/    DSGVO-Erklärung
+│       │   ├── login/          2-Schritt-Login
+│       │   └── page.tsx        Landingpage
+│       ├── components/         Wiederverwendbare UI-Komponenten
+│       └── lib/                Auth, Prisma, Klassen, Punkte-Logik
+└── preview/                    HTML-Prototyp (ohne Server)
+```
