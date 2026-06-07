@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeProvider'
+import { PageBg } from '@/components/PageBg'
 
 interface Match {
   id: string; matchNumber: number; phase: string; group?: string; round?: string
@@ -193,7 +194,9 @@ export default function AdminPage() {
   const pendingGroupMatches = matches.filter((m) => m.status !== 'FINISHED')
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <>
+      <PageBg src="/bg-stadium.jpg" />
+      <div className="page-content">
       <nav className="nav">
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '60px', gap: '0.75rem' }}>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--c-gold)' }}>⚽ Admin</span>
@@ -583,5 +586,6 @@ export default function AdminPage() {
         }
       `}</style>
     </div>
+    </>
   )
 }

@@ -1,12 +1,13 @@
 'use client'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
+import { PageBg } from '@/components/PageBg'
 
 function Confetti() {
   const pieces = Array.from({ length: 60 })
   const colors = ['#f5c842', '#22c55e', '#3b82f6', '#ef4444', '#ffffff', '#ffd700']
   return (
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 3 }}>
       {pieces.map((_, i) => {
         const left = Math.random() * 100
         const delay = Math.random() * 4
@@ -53,21 +54,21 @@ function CelebrationContent() {
   }, [])
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'radial-gradient(ellipse at 50% 30%, rgba(245,200,66,0.18) 0%, #0a0e1a 65%)',
-      position: 'relative',
-      overflow: 'hidden',
-      padding: '2rem',
-    }}>
+    <>
+      <PageBg src="/bg-stadium.jpg" hero />
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        padding: '2rem',
+      }}>
       <Confetti />
 
       <div style={{
-        position: 'relative', zIndex: 1, textAlign: 'center',
+        position: 'relative', zIndex: 4, textAlign: 'center',
         opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(30px)',
         transition: 'all 0.8s cubic-bezier(0.16,1,0.3,1)',
       }}>
@@ -123,6 +124,7 @@ function CelebrationContent() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
