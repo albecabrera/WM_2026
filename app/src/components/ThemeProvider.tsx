@@ -2,13 +2,13 @@
 import { useEffect, useState } from 'react'
 
 export function ThemeToggle() {
-  const [dark, setDark] = useState(true)
+  const [dark, setDark] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const saved = localStorage.getItem('wm2026_theme')
-    const isDark = saved ? saved === 'dark' : true
+    const saved = localStorage.getItem('wm2026_theme') || 'dark'
+    const isDark = saved === 'dark'
     setDark(isDark)
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+    document.documentElement.setAttribute('data-theme', saved)
   }, [])
 
   function toggle() {
@@ -19,19 +19,12 @@ export function ThemeToggle() {
     localStorage.setItem('wm2026_theme', theme)
   }
 
+  // Don't render until client has read localStorage — avoids hydration mismatch
+  if (dark === null) return <div style={{ width: 34, height: 34 }} />
+
   return (
     <button className="theme-toggle" onClick={toggle} title={dark ? 'Heller Modus' : 'Dunkler Modus'}>
       {dark ? '☀️' : '🌙'}
     </button>
-  )
-}
-
-export function ThemeScript() {
-  return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `(function(){var t=localStorage.getItem('wm2026_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();`,
-      }}
-    />
   )
 }
