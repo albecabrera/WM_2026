@@ -20,9 +20,9 @@
   --hero-overlay:
     radial-gradient(ellipse 110% 80% at 50% 22%, rgba(10,14,26,0.18) 0%, rgba(10,14,26,0.55) 60%, rgba(10,14,26,0.90) 100%),
     linear-gradient(to bottom, rgba(10,14,26,0.30) 0%, rgba(10,14,26,0.60) 55%, rgba(10,14,26,1) 100%);
-  /* Interior pages (dashboard/leaderboard/KO) — vignette, lighter center */
+  /* Interior pages (dashboard/leaderboard/KO) — content primary, soft vignette */
   --page-overlay:
-    radial-gradient(ellipse 120% 95% at 50% 28%, rgba(10,14,26,0.50) 0%, rgba(10,14,26,0.72) 55%, rgba(10,14,26,0.88) 100%);
+    radial-gradient(ellipse 120% 95% at 50% 28%, rgba(10,14,26,0.64) 0%, rgba(10,14,26,0.80) 55%, rgba(10,14,26,0.92) 100%);
   --font-display: 'Bebas Neue', sans-serif;
   --font-body:    'DM Sans', sans-serif;
   --r-sm: 8px;
@@ -51,7 +51,7 @@
     radial-gradient(ellipse 110% 80% at 50% 22%, rgba(240,244,248,0.10) 0%, rgba(240,244,248,0.50) 60%, rgba(240,244,248,0.92) 100%),
     linear-gradient(to bottom, rgba(240,244,248,0.22) 0%, rgba(240,244,248,0.58) 55%, rgba(240,244,248,1) 100%);
   --page-overlay:
-    radial-gradient(ellipse 120% 95% at 50% 28%, rgba(240,244,248,0.55) 0%, rgba(240,244,248,0.76) 55%, rgba(240,244,248,0.90) 100%);
+    radial-gradient(ellipse 120% 95% at 50% 28%, rgba(240,244,248,0.68) 0%, rgba(240,244,248,0.82) 55%, rgba(240,244,248,0.93) 100%);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -91,7 +91,7 @@ h4 { font-size: 1.2rem; }
 .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
 .relative  { position: relative; z-index: 1; }
 
-/* Full-screen background image — richer colors + slow Ken Burns */
+/* Full-screen background image — soft premium backdrop (low-res sources) */
 .page-bg-img {
   position: fixed;
   inset: 0;
@@ -99,20 +99,19 @@ h4 { font-size: 1.2rem; }
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: contrast(1.08) saturate(1.18) brightness(0.94);
-  transform: scale(1.06);
-  animation: kenburns 45s ease-in-out infinite alternate;
-  will-change: transform;
+  filter: contrast(1.04) saturate(1.08) brightness(0.92);
+  transform: scale(1.02);
 }
 [data-theme="light"] .page-bg-img {
-  filter: contrast(1.05) saturate(1.12) brightness(1.02);
+  filter: contrast(1.03) saturate(1.05) brightness(1.0);
 }
 .page-bg-overlay {
   position: fixed;
   inset: 0;
   z-index: 1;
   background: var(--page-overlay);
-  backdrop-filter: blur(1.5px);
+  /* Stronger blur hides upscaling artifacts and keeps content primary */
+  backdrop-filter: blur(4px);
 }
 /* Cinematic top sheen so the photo glows behind the nav */
 .page-bg-overlay::after {
@@ -120,16 +119,8 @@ h4 { font-size: 1.2rem; }
   position: absolute;
   inset: 0 0 auto 0;
   height: 40vh;
-  background: linear-gradient(to bottom, rgba(245,200,66,0.06) 0%, transparent 100%);
+  background: linear-gradient(to bottom, rgba(245,200,66,0.05) 0%, transparent 100%);
   pointer-events: none;
-}
-
-@keyframes kenburns {
-  0%   { transform: scale(1.06) translate(0, 0); }
-  100% { transform: scale(1.14) translate(-1.5%, -1.5%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .page-bg-img { animation: none; transform: scale(1.06); }
 }
 /* Page content must sit above overlays */
 .page-content {
