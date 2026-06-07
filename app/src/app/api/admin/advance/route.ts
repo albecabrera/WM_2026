@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-import { calculatePoints } from '@/lib/points'
 
-// Bracket: matchNumber → { next match number, slot }
 const BRACKET: Record<number, { next: number; slot: 'home' | 'away' }> = {
   73: { next: 89, slot: 'home' }, 74: { next: 89, slot: 'away' },
   75: { next: 90, slot: 'home' }, 76: { next: 90, slot: 'away' },
@@ -21,7 +19,6 @@ const BRACKET: Record<number, { next: number; slot: 'home' | 'away' }> = {
   99: { next: 102, slot: 'home' }, 100: { next: 102, slot: 'away' },
 }
 
-// SF: winner → Final, loser → 3rd place
 const SF_BRACKET: Record<number, {
   winnerNext: number; winnerSlot: 'home' | 'away'
   loserNext: number; loserSlot: 'home' | 'away'
@@ -30,9 +27,25 @@ const SF_BRACKET: Record<number, {
   102: { winnerNext: 104, winnerSlot: 'away', loserNext: 103, loserSlot: 'away' },
 }
 
-async function advanceTeam(winnerId: string, loserId: string | null, matchNumber: number) {
-  const bracket = BRACKET[matchNumber]
-  const sfBracket = SF_BRACKET[matchNumber]
+// POST /api/admin/advance — manually advance winner (after ET/penalties)
+export async function POST(req: NextRequest) {
+  const session = await getSession()
+  if (!session || (session.role !== 'ADMIN' && session.role !== 'TEACHER'))
+    return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 })
+
+  const { matchId, winnerId } = await req.json()
+  if (!matchId || !winnerId) return NextResponse.json({ error: 'matchId und winnerId erforderlich' }, { status: 400 })
+
+  const match = await prisma.match.findUnique({
+    where: { id: matchId },
+    include: { homeTeam: true, awayTeam: true },
+  })
+  if (!match) return NextResponse.json({ error: 'Match nicht gefunden' }, { status: 404 })
+
+  const loserId = winnerId === match.homeTeamId ? match.awayTeamId : match.homeTeamId
+
+  const bracket = BRACKET[match.matchNumber]
+  const sfBracket = SF_BRACKET[match.matchNumber]
 
   if (bracket) {
     const next = await prisma.match.findFirst({ where: { matchNumber: bracket.next } })
@@ -42,10 +55,7 @@ async function advanceTeam(winnerId: string, loserId: string | null, matchNumber
         data: bracket.slot === 'home' ? { homeTeamId: winnerId } : { awayTeamId: winnerId },
       })
     }
-    return { advanced: true }
-  }
-
-  if (sfBracket) {
+  } else if (sfBracket) {
     const finalMatch = await prisma.match.findFirst({ where: { matchNumber: sfBracket.winnerNext } })
     if (finalMatch) {
       await prisma.match.update({
@@ -62,60 +72,10 @@ async function advanceTeam(winnerId: string, loserId: string | null, matchNumber
         })
       }
     }
-    return { advanced: true }
+  } else {
+    return NextResponse.json({ error: 'Kein Bracket für dieses Spiel' }, { status: 400 })
   }
 
-  return { advanced: false }
-}
-
-// POST /api/results - set match result and calculate points
-export async function POST(req: NextRequest) {
-  const session = await getSession()
-  if (!session || (session.role !== 'ADMIN' && session.role !== 'TEACHER'))
-    return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 })
-
-  const { matchId, homeGoals, awayGoals } = await req.json()
-
-  const match = await prisma.match.update({
-    where: { id: matchId },
-    data: { homeGoals, awayGoals, status: 'FINISHED' },
-    include: { homeTeam: true, awayTeam: true },
-  })
-
-  const tips = await prisma.tip.findMany({ where: { matchId } })
-  for (const tip of tips) {
-    const points = calculatePoints({
-      tipHome: tip.homeGoals,
-      tipAway: tip.awayGoals,
-      actualHome: homeGoals,
-      actualAway: awayGoals,
-    })
-    await prisma.tip.update({ where: { id: tip.id }, data: { points } })
-  }
-
-  // Auto-advance winner in KO rounds
-  let advancedTeamName: string | null = null
-  let needsPenaltyWinner = false
-
-  if (match.phase !== 'GROUP' && match.matchNumber) {
-    const isKnownBracket = BRACKET[match.matchNumber] || SF_BRACKET[match.matchNumber]
-    if (isKnownBracket) {
-      if (homeGoals !== awayGoals) {
-        const winnerId = homeGoals > awayGoals ? match.homeTeamId! : match.awayTeamId!
-        const loserId = homeGoals > awayGoals ? match.awayTeamId : match.homeTeamId
-        await advanceTeam(winnerId, loserId, match.matchNumber)
-        advancedTeamName = homeGoals > awayGoals ? match.homeTeam?.name ?? null : match.awayTeam?.name ?? null
-      } else {
-        needsPenaltyWinner = true
-      }
-    }
-  }
-
-  return NextResponse.json({
-    success: true,
-    tipsUpdated: tips.length,
-    advancedTeamName,
-    needsPenaltyWinner,
-    matchId,
-  })
+  const winnerTeam = winnerId === match.homeTeamId ? match.homeTeam : match.awayTeam
+  return NextResponse.json({ success: true, advancedTeamName: winnerTeam?.name })
 }

@@ -45,6 +45,8 @@ export default function AdminPage() {
   const [resetResults, setResetResults] = useState<any[]>([])
   const [resetting, setResetting] = useState(false)
   const [resetMsg, setResetMsg] = useState({ text: '', ok: true })
+  const [penaltyPrompt, setPenaltyPrompt] = useState<{ matchId: string; homeTeam: Match['homeTeam']; awayTeam: Match['awayTeam'] } | null>(null)
+  const [advancingPenalty, setAdvancingPenalty] = useState(false)
 
   async function lookupOrResetCode(action: 'lookup' | 'reset' = 'lookup') {
     if (!resetQuery.trim()) return
@@ -103,15 +105,43 @@ export default function AdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ matchId, homeGoals: Number(r.home), awayGoals: Number(r.away) }),
     })
+    const data = await res.json()
     setSaving(null)
     if (res.ok) {
-      showMsg('Ergebnis gespeichert und Punkte berechnet!')
+      const hg = Number(r.home); const ag = Number(r.away)
       setMatches((prev) => prev.map((m) =>
-        m.id === matchId ? { ...m, status: 'FINISHED', homeGoals: Number(r.home), awayGoals: Number(r.away) } : m
+        m.id === matchId ? { ...m, status: 'FINISHED', homeGoals: hg, awayGoals: ag } : m
       ))
       setKoMatches((prev) => prev.map((m) =>
-        m.id === matchId ? { ...m, status: 'FINISHED', homeGoals: Number(r.home), awayGoals: Number(r.away) } : m
+        m.id === matchId ? { ...m, status: 'FINISHED', homeGoals: hg, awayGoals: ag } : m
       ))
+      if (data.advancedTeamName) {
+        showMsg(`✓ Ergebnis gespeichert · ${data.advancedTeamName} weiter zur nächsten Runde!`)
+      } else if (data.needsPenaltyWinner) {
+        showMsg('Ergebnis gespeichert · Unentschieden — wer hat im Elfmeterschießen gewonnen?', false)
+        const match = koMatches.find((m) => m.id === matchId)
+        if (match) setPenaltyPrompt({ matchId, homeTeam: match.homeTeam, awayTeam: match.awayTeam })
+      } else {
+        showMsg('Ergebnis gespeichert und Punkte berechnet!')
+      }
+    }
+  }
+
+  async function advancePenaltyWinner(matchId: string, winnerId: string) {
+    setAdvancingPenalty(true)
+    const res = await fetch('/api/admin/advance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ matchId, winnerId }),
+    })
+    const data = await res.json()
+    setAdvancingPenalty(false)
+    setPenaltyPrompt(null)
+    if (res.ok) {
+      showMsg(`✓ ${data.advancedTeamName} weiter zur nächsten Runde!`)
+      if (tab === 'ko') {
+        fetch('/api/admin/ko').then((r) => r.json()).then((d) => { if (Array.isArray(d)) setKoMatches(d) })
+      }
     }
   }
 
@@ -208,6 +238,43 @@ export default function AdminPage() {
           <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Abmelden</a>
         </div>
       </nav>
+
+      {/* Penalty winner modal */}
+      {penaltyPrompt && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+        }}>
+          <div className="card" style={{ maxWidth: '420px', width: '100%', textAlign: 'center', border: '1px solid rgba(245,200,66,0.3)' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚽</div>
+            <h3 style={{ marginBottom: '0.25rem', color: 'var(--c-gold)' }}>Elfmeterschießen</h3>
+            <p style={{ color: 'var(--c-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+              Unentschieden — wer hat gewonnen?
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {penaltyPrompt.homeTeam && (
+                <button className="btn btn-primary" disabled={advancingPenalty}
+                  onClick={() => advancePenaltyWinner(penaltyPrompt.matchId, penaltyPrompt.homeTeam!.id)}
+                  style={{ flex: 1, justifyContent: 'center', padding: '0.85rem' }}>
+                  {penaltyPrompt.homeTeam.flagEmoji} {penaltyPrompt.homeTeam.shortName}
+                </button>
+              )}
+              {penaltyPrompt.awayTeam && (
+                <button className="btn btn-primary" disabled={advancingPenalty}
+                  onClick={() => advancePenaltyWinner(penaltyPrompt.matchId, penaltyPrompt.awayTeam!.id)}
+                  style={{ flex: 1, justifyContent: 'center', padding: '0.85rem' }}>
+                  {penaltyPrompt.awayTeam.flagEmoji} {penaltyPrompt.awayTeam.shortName}
+                </button>
+              )}
+            </div>
+            <button className="btn btn-ghost" onClick={() => setPenaltyPrompt(null)}
+              style={{ marginTop: '1rem', fontSize: '0.8rem' }}>
+              Später entscheiden
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="container relative" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
         <h2 style={{ marginBottom: '1.5rem' }}>Admin-Panel</h2>
