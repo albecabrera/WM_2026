@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ThemeToggle } from '@/components/ThemeProvider'
 
 interface Match {
   id: string; matchNumber: number; phase: string; group?: string; round?: string
@@ -200,6 +201,7 @@ export default function AdminPage() {
           <button onClick={() => { fetchLeaderboard(); startCelebration() }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.9rem' }}>
             🎉 Feier starten
           </button>
+          <ThemeToggle />
           <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Abmelden</a>
         </div>
       </nav>

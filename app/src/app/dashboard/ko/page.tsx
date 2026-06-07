@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeProvider'
 
 interface Team { name: string; shortName: string; flagEmoji: string }
 interface Match {
@@ -102,6 +103,7 @@ export default function KOPage() {
           <Link href="/dashboard" style={{ color: 'var(--c-muted)', textDecoration: 'none', fontSize: '0.85rem' }}>← Gruppen</Link>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--c-gold)', flex: 1 }}>⚽ KO-Runden</span>
           <Link href="/leaderboard" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Rangliste</Link>
+          <ThemeToggle />
           <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Abmelden</a>
         </div>
       </nav>

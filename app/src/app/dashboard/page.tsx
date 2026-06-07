@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeProvider'
 
 function TutorialModal({ onClose }: { onClose: () => void }) {
   const steps = [
@@ -351,6 +352,7 @@ export default function DashboardPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >?</button>
+            <ThemeToggle />
             <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Abmelden</a>
           </div>
         </div>

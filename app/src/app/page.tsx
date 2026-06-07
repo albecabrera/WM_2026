@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeProvider'
 
 export default async function LandingPage() {
   const session = await getSession()
@@ -12,173 +13,214 @@ export default async function LandingPage() {
   return (
     <>
       <style>{`
-        .landing-bg {
-          position: fixed; inset: 0; z-index: 0; pointer-events: none;
-          background:
-            radial-gradient(ellipse 70% 60% at 15% 5%,  rgba(245,200,66,0.10) 0%, transparent 65%),
-            radial-gradient(ellipse 50% 40% at 85% 90%, rgba(59,130,246,0.09) 0%, transparent 60%),
-            radial-gradient(ellipse 40% 50% at 50% 50%, rgba(245,200,66,0.04) 0%, transparent 70%);
+        .hero-section {
+          min-height: 100vh;
+          position: relative;
+          display: flex;
+          flex-direction: column;
         }
-        .stat-card {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 12px;
-          padding: 1.1rem 1.5rem;
+        .hero-image {
+          position: fixed;
+          inset: 0;
+          background: url('/ball.jpg') center center / cover no-repeat;
+          z-index: 0;
+        }
+        .hero-overlay {
+          position: fixed;
+          inset: 0;
+          background: var(--hero-overlay);
+          z-index: 1;
+        }
+        .hero-content {
+          position: relative;
+          z-index: 2;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
           text-align: center;
-          backdrop-filter: blur(8px);
+          padding: 6rem 1.5rem 3rem;
+        }
+        .hero-title {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(5rem, 18vw, 12rem);
+          line-height: 0.85;
+          letter-spacing: 0.03em;
+          background: linear-gradient(135deg, #f5c842 0%, #ffd84d 45%, #c49a1a 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          filter: drop-shadow(0 4px 24px rgba(245,200,66,0.3));
+        }
+        [data-theme="light"] .hero-title {
+          background: linear-gradient(135deg, #c8960a 0%, #a07808 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+        }
+        .hero-sub {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(1.2rem, 4vw, 2rem);
+          color: var(--c-muted);
+          letter-spacing: 0.3em;
+          margin-top: 0.5rem;
+        }
+        .hero-school {
+          font-size: 0.8rem;
+          color: var(--c-hint);
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          margin-top: 0.5rem;
+          margin-bottom: 3rem;
+        }
+        .stat-row {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.75rem;
+          max-width: 520px;
+          width: 100%;
+          margin-bottom: 3rem;
+        }
+        .stat-box {
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          border-radius: 12px;
+          padding: 0.9rem 0.5rem;
+          backdrop-filter: blur(12px);
         }
         .stat-num {
           font-family: 'Bebas Neue', sans-serif;
-          font-size: 2.4rem;
-          color: #f5c842;
+          font-size: 2.2rem;
+          color: var(--c-gold);
           line-height: 1;
         }
         .stat-label {
-          font-size: 0.72rem;
-          color: #94a3b8;
+          font-size: 0.68rem;
+          color: var(--c-muted);
           text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin-top: 4px;
+          letter-spacing: 0.08em;
+          margin-top: 3px;
         }
         .cta-btn {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          background: #f5c842;
+          background: var(--c-gold);
           color: #0a0e1a;
           font-family: 'Bebas Neue', sans-serif;
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           letter-spacing: 0.06em;
-          padding: 0.9rem 2.8rem;
+          padding: 0.85rem 2.6rem;
           border-radius: 10px;
           text-decoration: none;
           transition: all 0.2s;
-          border: none;
-          cursor: pointer;
+          box-shadow: 0 8px 32px rgba(245,200,66,0.25);
         }
         .cta-btn:hover {
-          background: #ffd84d;
+          filter: brightness(1.08);
           transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(245,200,66,0.3);
+          box-shadow: 0 16px 48px rgba(245,200,66,0.35);
         }
-        .date-badge {
+        .ball-glow {
+          font-size: clamp(3.5rem, 10vw, 6rem);
+          animation: float 4s ease-in-out infinite;
+          filter: drop-shadow(0 0 32px rgba(245,200,66,0.4));
+          margin-bottom: 1.5rem;
+        }
+        .landing-nav {
+          position: fixed;
+          top: 0; left: 0; right: 0;
+          z-index: 200;
+          background: var(--nav-bg);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid var(--c-border);
+        }
+        .landing-nav-inner {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 0 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          height: 60px;
+        }
+        .date-pill {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
+          gap: 6px;
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
           border-radius: 100px;
-          padding: 0.5rem 1.25rem;
-          font-size: 0.88rem;
-          color: #94a3b8;
-          letter-spacing: 0.04em;
+          padding: 0.45rem 1.1rem;
+          font-size: 0.85rem;
+          color: var(--c-muted);
+          margin-bottom: 2.5rem;
         }
-        .date-badge span { color: #f5c842; font-weight: 600; }
-        .trophy-glow {
-          filter: drop-shadow(0 0 40px rgba(245,200,66,0.5));
-          animation: float 4s ease-in-out infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-12px); }
-        }
-        .hero-title {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(4.5rem, 14vw, 11rem);
-          line-height: 0.88;
-          letter-spacing: 0.02em;
-          background: linear-gradient(135deg, #f5c842 0%, #ffd84d 40%, #c49a1a 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .hero-sub {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(1.4rem, 4vw, 2.2rem);
-          color: #94a3b8;
-          letter-spacing: 0.25em;
-        }
-        @media (max-width: 640px) {
-          .stats-row { grid-template-columns: repeat(2, 1fr) !important; }
+        .date-pill strong { color: var(--c-gold); }
+        @media (max-width: 480px) {
+          .stat-row { grid-template-columns: repeat(2, 1fr); max-width: 280px; }
+          .cta-btn { font-size: 1.2rem; padding: 0.75rem 2rem; }
         }
       `}</style>
 
-      <div className="landing-bg" />
+      {/* Fixed bg image + overlay */}
+      <div className="hero-image" />
+      <div className="hero-overlay" />
 
       {/* Nav */}
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(10,14,26,0.7)', backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px' }}>
-          <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.4rem', color: '#f5c842', letterSpacing: '0.05em' }}>
+      <nav className="landing-nav">
+        <div className="landing-nav-inner">
+          <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.4rem', color: 'var(--c-gold)', letterSpacing: '0.05em' }}>
             ⚽ WM 2026
           </span>
-          <Link href="/login" className="cta-btn" style={{ fontSize: '0.9rem', padding: '0.45rem 1.25rem', letterSpacing: '0.05em' }}>
-            Anmelden →
-          </Link>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <ThemeToggle />
+            <Link href="/login" className="cta-btn" style={{ fontSize: '0.9rem', padding: '0.45rem 1.25rem', letterSpacing: '0.05em' }}>
+              Anmelden →
+            </Link>
+          </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <main style={{
-        minHeight: '100vh', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: '6rem 1.5rem 4rem', position: 'relative', zIndex: 1, textAlign: 'center',
-      }}>
+      <main className="hero-content">
+        <div className="ball-glow">🏆</div>
 
-        {/* Trophy */}
-        <div className="trophy-glow" style={{ fontSize: 'clamp(4rem, 12vw, 7rem)', marginBottom: '1.5rem' }}>
-          🏆
+        <h1 className="hero-title">WM 2026</h1>
+        <p className="hero-sub">Tipp-Spiel</p>
+        <p className="hero-school">Elisabeth-Selbert-Gesamtschule Bonn</p>
+
+        <div className="date-pill">
+          <strong>11. Juni</strong> – <strong>26. Juli 2026</strong>
+          &nbsp;·&nbsp; USA · Kanada · Mexiko
         </div>
 
-        {/* Title */}
-        <h1 className="hero-title">WM 2026</h1>
-        <p className="hero-sub" style={{ marginTop: '0.25rem', marginBottom: '1.5rem' }}>
-          TIPP-SPIEL
-        </p>
-        <p style={{ color: '#475569', fontSize: '0.85rem', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '3rem' }}>
-          Elisabeth-Selbert-Gesamtschule Bonn
-        </p>
-
-        {/* Stats */}
-        <div className="stats-row" style={{
-          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '0.75rem', maxWidth: '600px', width: '100%', marginBottom: '3.5rem',
-        }}>
+        <div className="stat-row">
           {[
-            { num: '48',  label: 'Teams'    },
-            { num: '104', label: 'Spiele'   },
-            { num: '12',  label: 'Gruppen'  },
-            { num: '3',   label: 'Länder'   },
+            { num: '48',  label: 'Teams'   },
+            { num: '104', label: 'Spiele'  },
+            { num: '12',  label: 'Gruppen' },
+            { num: '3',   label: 'Länder'  },
           ].map((s) => (
-            <div key={s.label} className="stat-card">
+            <div key={s.label} className="stat-box">
               <div className="stat-num">{s.num}</div>
               <div className="stat-label">{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* CTA */}
-        <Link href="/login" className="cta-btn" style={{ marginBottom: '2.5rem' }}>
-          🔐 Jetzt anmelden
+        <Link href="/login" className="cta-btn">
+          🔐 Jetzt mitspielen
         </Link>
-
-        {/* Date badge */}
-        <div className="date-badge">
-          <span>11. Juni</span> – <span>26. Juli 2026</span>
-          &nbsp;·&nbsp; USA · Kanada · Mexiko
-        </div>
       </main>
 
       {/* Footer */}
       <footer style={{
-        position: 'relative', zIndex: 1, textAlign: 'center',
-        padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.06)',
-        color: '#334155', fontSize: '0.78rem', letterSpacing: '0.08em',
+        position: 'relative', zIndex: 2, textAlign: 'center',
+        padding: '1.25rem', borderTop: '1px solid var(--c-border)',
+        color: 'var(--c-hint)', fontSize: '0.75rem', letterSpacing: '0.08em',
       }}>
-        ESG Bonn · Tipp-Spiel für Klassen 5 & 6 · WM 2026
+        ESG Bonn · Klassen 5 & 6 · WM 2026
       </footer>
     </>
   )

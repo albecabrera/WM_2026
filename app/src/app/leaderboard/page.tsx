@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeProvider'
 
 interface LeaderboardEntry {
   id: string
@@ -29,6 +30,7 @@ export default function LeaderboardPage() {
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '60px', gap: '1rem' }}>
           <Link href="/dashboard" style={{ color: 'var(--c-muted)', textDecoration: 'none', fontSize: '0.85rem' }}>← Dashboard</Link>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--c-gold)', flex: 1 }}>⚽ WM 2026</span>
+          <ThemeToggle />
         </div>
       </nav>
 
