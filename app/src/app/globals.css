@@ -3,10 +3,10 @@
 /* ── Dark mode (default) ─────────────────────────────── */
 :root {
   --c-bg:        #0a0e1a;
-  --c-surface:   #111827;
-  --c-surface2:  #1a2235;
-  --c-border:    rgba(255,255,255,0.08);
-  --c-border2:   rgba(255,255,255,0.15);
+  --c-surface:   rgba(17,24,39,0.88);
+  --c-surface2:  rgba(26,34,53,0.92);
+  --c-border:    rgba(255,255,255,0.10);
+  --c-border2:   rgba(255,255,255,0.18);
   --c-gold:      #f5c842;
   --c-gold-dim:  #c49a1a;
   --c-green:     #22c55e;
@@ -15,8 +15,11 @@
   --c-text:      #f1f5f9;
   --c-muted:     #94a3b8;
   --c-hint:      #475569;
-  --nav-bg:      rgba(10,14,26,0.85);
-  --hero-overlay: linear-gradient(to bottom, rgba(10,14,26,0.55) 0%, rgba(10,14,26,0.85) 60%, rgba(10,14,26,1) 100%);
+  --nav-bg:      rgba(10,14,26,0.88);
+  /* Hero pages (landing) */
+  --hero-overlay: linear-gradient(to bottom, rgba(10,14,26,0.50) 0%, rgba(10,14,26,0.82) 55%, rgba(10,14,26,1) 100%);
+  /* Interior pages (dashboard/leaderboard/KO) */
+  --page-overlay: rgba(10,14,26,0.68);
   --font-display: 'Bebas Neue', sans-serif;
   --font-body:    'DM Sans', sans-serif;
   --r-sm: 8px;
@@ -28,8 +31,8 @@
 /* ── Light mode ──────────────────────────────────────── */
 [data-theme="light"] {
   --c-bg:        #f0f4f8;
-  --c-surface:   #ffffff;
-  --c-surface2:  #e8edf3;
+  --c-surface:   rgba(255,255,255,0.90);
+  --c-surface2:  rgba(232,237,243,0.94);
   --c-border:    rgba(0,0,0,0.09);
   --c-border2:   rgba(0,0,0,0.18);
   --c-gold:      #c8960a;
@@ -41,7 +44,8 @@
   --c-muted:     #475569;
   --c-hint:      #94a3b8;
   --nav-bg:      rgba(240,244,248,0.92);
-  --hero-overlay: linear-gradient(to bottom, rgba(240,244,248,0.4) 0%, rgba(240,244,248,0.82) 60%, rgba(240,244,248,1) 100%);
+  --hero-overlay: linear-gradient(to bottom, rgba(240,244,248,0.38) 0%, rgba(240,244,248,0.80) 55%, rgba(240,244,248,1) 100%);
+  --page-overlay: rgba(240,244,248,0.72);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,16 +62,16 @@ body {
   transition: background 0.25s, color 0.25s;
 }
 
-/* Background mesh */
+/* Background mesh — sits behind page bg images */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(245,200,66,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(245,200,66,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.05) 0%, transparent 60%);
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* Typography */
@@ -81,19 +85,28 @@ h4 { font-size: 1.2rem; }
 .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
 .relative  { position: relative; z-index: 1; }
 
-/* Hero image background */
-.hero-bg {
-  position: relative;
-  overflow: hidden;
-}
-.hero-bg::after {
-  content: '';
-  position: absolute;
+/* Full-screen background image */
+.page-bg-img {
+  position: fixed;
   inset: 0;
-  background: var(--hero-overlay);
-  z-index: 1;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-.hero-bg > * { position: relative; z-index: 2; }
+.page-bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: var(--page-overlay);
+  backdrop-filter: blur(1px);
+}
+/* Page content must sit above overlays */
+.page-content {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+}
 
 /* Card */
 .card {

@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
+import { PageBg } from '@/components/PageBg'
 
 function TutorialModal({ onClose }: { onClose: () => void }) {
   const steps = [
@@ -301,7 +302,10 @@ export default function DashboardPage() {
   }, {})
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <>
+      <PageBg src="/bg-players.jpg" />
+      <div className="page-content">
+
       {/* Tutorial modal */}
       {showTutorial && <TutorialModal onClose={closeTutorial} />}
 
@@ -579,6 +583,7 @@ export default function DashboardPage() {
           .dashboard-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
-    </div>
+      </div>
+    </>
   )
 }

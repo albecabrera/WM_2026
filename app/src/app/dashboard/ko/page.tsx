@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
+import { PageBg } from '@/components/PageBg'
 
 interface Team { name: string; shortName: string; flagEmoji: string }
 interface Match {
@@ -97,7 +98,9 @@ export default function KOPage() {
   const roundMatches = matchesByRound[activeRound] ?? []
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <>
+      <PageBg src="/bg-players.jpg" />
+      <div className="page-content">
       <nav className="nav">
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '60px', gap: '1rem' }}>
           <Link href="/dashboard" style={{ color: 'var(--c-muted)', textDecoration: 'none', fontSize: '0.85rem' }}>← Gruppen</Link>
@@ -224,6 +227,7 @@ export default function KOPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }

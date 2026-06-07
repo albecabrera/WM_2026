@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
+import { PageBg } from '@/components/PageBg'
 
 export default async function LandingPage() {
   const session = await getSession()
@@ -18,18 +19,6 @@ export default async function LandingPage() {
           position: relative;
           display: flex;
           flex-direction: column;
-        }
-        .hero-image {
-          position: fixed;
-          inset: 0;
-          background: url('/ball.jpg') center center / cover no-repeat;
-          z-index: 0;
-        }
-        .hero-overlay {
-          position: fixed;
-          inset: 0;
-          background: var(--hero-overlay);
-          z-index: 1;
         }
         .hero-content {
           position: relative;
@@ -163,9 +152,7 @@ export default async function LandingPage() {
         }
       `}</style>
 
-      {/* Fixed bg image + overlay */}
-      <div className="hero-image" />
-      <div className="hero-overlay" />
+      <PageBg src="/bg-stadium.jpg" hero />
 
       {/* Nav */}
       <nav className="landing-nav">

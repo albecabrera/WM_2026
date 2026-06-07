@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
+import { PageBg } from '@/components/PageBg'
 
 interface LeaderboardEntry {
   id: string
@@ -25,7 +26,9 @@ export default function LeaderboardPage() {
   const classes = ['all', '5a', '5b', '6a', '6b']
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <>
+      <PageBg src="/bg-players.jpg" />
+      <div className="page-content">
       <nav className="nav">
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '60px', gap: '1rem' }}>
           <Link href="/dashboard" style={{ color: 'var(--c-muted)', textDecoration: 'none', fontSize: '0.85rem' }}>← Dashboard</Link>
@@ -129,7 +132,8 @@ export default function LeaderboardPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

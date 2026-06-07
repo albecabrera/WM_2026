@@ -52,7 +52,7 @@ export default function LoginPage() {
         .login-ball-bg {
           position: absolute;
           inset: 0;
-          background: url('/ball.jpg') center center / cover no-repeat;
+          background: url('/bg-pitch.jpg') center center / cover no-repeat;
         }
         .login-ball-overlay {
           position: absolute;
