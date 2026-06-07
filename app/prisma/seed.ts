@@ -1,5 +1,4 @@
 import { PrismaClient, MatchPhase, MatchStatus } from '@prisma/client'
-import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -66,29 +65,15 @@ const teams = [
   { name: 'Indonesien',         shortName: 'IDN', group: 'L', flagEmoji: '🇮🇩' },
 ]
 
-// WM 2026 starts June 11, 2026
-// Each group plays round-robin: 6 matches per group × 12 groups = 72 group stage matches
-// KO: 32 + 16 + 8 + 4 + 1 = 32 matches = 32 total KO (actual: 32 → R16 = 16, QF = 8, SF = 4, 3rd = 1, F = 1 = 32)
-// Total = 72 + 32 = 104 matches
-
 function groupMatches(
   group: string,
-  teams: { id: string; shortName: string }[],
+  ts: { id: string; shortName: string }[],
   startDate: Date,
   matchNumberOffset: number,
-  venue1: string,
-  venue2: string,
-  venue3: string
+  venue1: string, venue2: string, venue3: string
 ) {
-  const [t1, t2, t3, t4] = teams
-  const pairs = [
-    [t1, t2],
-    [t3, t4],
-    [t1, t3],
-    [t2, t4],
-    [t1, t4],
-    [t2, t3],
-  ]
+  const [t1, t2, t3, t4] = ts
+  const pairs = [[t1,t2],[t3,t4],[t1,t3],[t2,t4],[t1,t4],[t2,t3]]
   const venues = [venue1, venue2, venue3, venue1, venue2, venue3]
   return pairs.map(([home, away], i) => {
     const d = new Date(startDate)
@@ -96,13 +81,9 @@ function groupMatches(
     d.setHours(i % 2 === 0 ? 18 : 21, 0, 0, 0)
     return {
       matchNumber: matchNumberOffset + i + 1,
-      phase: MatchPhase.GROUP,
-      group,
-      homeTeamId: home.id,
-      awayTeamId: away.id,
-      kickoff: d,
-      status: MatchStatus.UPCOMING,
-      venue: venues[i],
+      phase: MatchPhase.GROUP, group,
+      homeTeamId: home.id, awayTeamId: away.id,
+      kickoff: d, status: MatchStatus.UPCOMING, venue: venues[i],
     }
   })
 }
@@ -110,7 +91,6 @@ function groupMatches(
 async function main() {
   console.log('Seeding database...')
 
-  // Clear existing data
   await prisma.tip.deleteMany()
   await prisma.tournamentWinnerTip.deleteMany()
   await prisma.match.deleteMany()
@@ -118,15 +98,13 @@ async function main() {
   await prisma.user.deleteMany()
   await prisma.class.deleteMany()
 
-  // Create teams
-  const createdTeams: { [key: string]: { id: string; shortName: string } } = {}
+  const createdTeams: Record<string, { id: string; shortName: string }> = {}
   for (const team of teams) {
     const t = await prisma.team.create({ data: team })
     createdTeams[team.shortName] = { id: t.id, shortName: t.shortName }
   }
   console.log(`Created ${teams.length} teams`)
 
-  // Create classes
   await prisma.class.createMany({
     data: [
       { code: '5a', name: 'Klasse 5a', teacherCode: 'lehrer5a' },
@@ -135,35 +113,22 @@ async function main() {
       { code: '6b', name: 'Klasse 6b', teacherCode: 'lehrer6b' },
     ],
   })
-  console.log('Created 4 classes')
 
-  // Create admin user
   await prisma.user.create({
-    data: {
-      name: 'Admin',
-      classCode: 'admin',
-      loginCode: 'admin2026',
-      role: 'ADMIN',
-    },
+    data: { name: 'Admin', classCode: 'admin', loginCode: 'admin2026', role: 'ADMIN' },
   })
 
-  // Create demo students
   const demoStudents = [
-    { name: 'Müller', classCode: '6a', loginCode: 'mueller6a' },
+    { name: 'Müller',  classCode: '6a', loginCode: 'mueller6a' },
     { name: 'Schmidt', classCode: '6a', loginCode: 'schmidt6a' },
-    { name: 'Bauer', classCode: '6b', loginCode: 'bauer6b' },
-    { name: 'Weber', classCode: '5a', loginCode: 'weber5a' },
+    { name: 'Bauer',   classCode: '6b', loginCode: 'bauer6b'   },
+    { name: 'Weber',   classCode: '5a', loginCode: 'weber5a'   },
     { name: 'Fischer', classCode: '5b', loginCode: 'fischer5b' },
   ]
-  for (const s of demoStudents) {
-    await prisma.user.create({ data: { ...s, role: 'STUDENT' } })
-  }
+  for (const s of demoStudents) await prisma.user.create({ data: { ...s, role: 'STUDENT' } })
   console.log('Created demo users')
 
-  // Group start dates (WM 2026 starts June 11, 2026)
-  const groupConfig: {
-    [key: string]: { start: Date; offset: number; venues: [string, string, string] }
-  } = {
+  const groupConfig: Record<string, { start: Date; offset: number; venues: [string, string, string] }> = {
     A: { start: new Date('2026-06-11'), offset: 0,  venues: ['MetLife Stadium', 'SoFi Stadium', 'AT&T Stadium'] },
     B: { start: new Date('2026-06-12'), offset: 6,  venues: ['Levi\'s Stadium', 'Rose Bowl', 'Arrowhead Stadium'] },
     C: { start: new Date('2026-06-12'), offset: 12, venues: ['Hard Rock Stadium', 'NRG Stadium', 'Empower Field'] },
@@ -178,44 +143,59 @@ async function main() {
     L: { start: new Date('2026-06-17'), offset: 66, venues: ['Q2 Stadium', 'SoFi Stadium', 'Empower Field'] },
   }
 
-  const groupLetters = ['A','B','C','D','E','F','G','H','I','J','K','L']
-  const teamsByGroup: { [key: string]: { id: string; shortName: string }[] } = {}
-
+  const teamsByGroup: Record<string, { id: string; shortName: string }[]> = {}
   for (const t of teams) {
     if (!teamsByGroup[t.group!]) teamsByGroup[t.group!] = []
     teamsByGroup[t.group!].push(createdTeams[t.shortName])
   }
 
   let allMatches: any[] = []
-  for (const g of groupLetters) {
+  for (const g of ['A','B','C','D','E','F','G','H','I','J','K','L']) {
     const cfg = groupConfig[g]
-    const matches = groupMatches(g, teamsByGroup[g], cfg.start, cfg.offset, ...cfg.venues)
-    allMatches = [...allMatches, ...matches]
+    allMatches = [...allMatches, ...groupMatches(g, teamsByGroup[g], cfg.start, cfg.offset, ...cfg.venues)]
   }
+  for (const m of allMatches) await prisma.match.create({ data: m })
+  console.log(`Created ${allMatches.length} group matches`)
 
-  // KO rounds - placeholder teams (to be updated when groups finish)
-  const koRounds = [
-    // Round of 32 (32 matches, matchNumber 73-104)
-    ...Array.from({ length: 32 }, (_, i) => ({
+  // KO rounds — proper structure (16+8+4+2+1+1 = 32 matches, total 104)
+  const VENUES = ['MetLife Stadium', 'SoFi Stadium', 'AT&T Stadium', 'Hard Rock Stadium']
+  const koMatches: any[] = [
+    // R32 — Runde der 32 (16 matches, #73–88)
+    ...Array.from({ length: 16 }, (_, i) => ({
       matchNumber: 73 + i,
-      phase: MatchPhase.ROUND_OF_32,
-      round: 'R32',
-      homeTeamId: null,
-      awayTeamId: null,
-      kickoff: new Date(`2026-07-${String(4 + Math.floor(i / 4)).padStart(2,'0')}T18:00:00`),
-      status: MatchStatus.UPCOMING,
-      venue: ['MetLife Stadium', 'SoFi Stadium', 'AT&T Stadium', 'Hard Rock Stadium'][i % 4],
+      phase: MatchPhase.ROUND_OF_32, round: 'R32',
+      homeTeamId: null, awayTeamId: null,
+      kickoff: new Date(`2026-07-0${4 + Math.floor(i / 4)}T${i % 2 === 0 ? '18' : '21'}:00:00`),
+      status: MatchStatus.UPCOMING, venue: VENUES[i % 4],
     })),
+    // R16 — Achtelfinale (8 matches, #89–96)
+    ...Array.from({ length: 8 }, (_, i) => ({
+      matchNumber: 89 + i,
+      phase: MatchPhase.ROUND_OF_16, round: 'R16',
+      homeTeamId: null, awayTeamId: null,
+      kickoff: new Date(`2026-07-${String(9 + Math.floor(i / 4)).padStart(2,'0')}T${i % 2 === 0 ? '18' : '21'}:00:00`),
+      status: MatchStatus.UPCOMING, venue: VENUES[i % 4],
+    })),
+    // QF — Viertelfinale (4 matches, #97–100)
+    ...Array.from({ length: 4 }, (_, i) => ({
+      matchNumber: 97 + i,
+      phase: MatchPhase.QUARTER_FINAL, round: 'QF',
+      homeTeamId: null, awayTeamId: null,
+      kickoff: new Date(`2026-07-${String(13 + Math.floor(i / 2)).padStart(2,'0')}T${i % 2 === 0 ? '18' : '21'}:00:00`),
+      status: MatchStatus.UPCOMING, venue: VENUES[i % 4],
+    })),
+    // SF — Halbfinale (2 matches, #101–102)
+    { matchNumber: 101, phase: MatchPhase.SEMI_FINAL, round: 'SF', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-17T21:00:00'), status: MatchStatus.UPCOMING, venue: 'MetLife Stadium' },
+    { matchNumber: 102, phase: MatchPhase.SEMI_FINAL, round: 'SF', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-18T21:00:00'), status: MatchStatus.UPCOMING, venue: 'SoFi Stadium' },
+    // 3rd place (#103)
+    { matchNumber: 103, phase: MatchPhase.SEMI_FINAL, round: '3RD', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-22T21:00:00'), status: MatchStatus.UPCOMING, venue: 'AT&T Stadium' },
+    // Final (#104)
+    { matchNumber: 104, phase: MatchPhase.FINAL, round: 'FINAL', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-26T21:00:00'), status: MatchStatus.UPCOMING, venue: 'MetLife Stadium' },
   ]
 
-  for (const match of allMatches) {
-    await prisma.match.create({ data: match })
-  }
-  for (const match of koRounds) {
-    await prisma.match.create({ data: match })
-  }
-
-  console.log(`Created ${allMatches.length + koRounds.length} matches`)
+  for (const m of koMatches) await prisma.match.create({ data: m })
+  console.log(`Created ${koMatches.length} KO matches`)
+  console.log(`Total: ${allMatches.length + koMatches.length} matches`)
   console.log('Seed complete!')
 }
 
