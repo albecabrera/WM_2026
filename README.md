@@ -71,8 +71,8 @@ Desde el panel de admin, pestaña "Schüler verwalten":
 | Resultado | Puntos |
 |-----------|--------|
 | Resultado exacto (ej. 2-1 = 2-1) | +3 |
-| Tendencia correcta (ej. 2-1 → cualquier victoria local) | +1 |
-| Empate correcto (sin exacto) | +1 |
+| Tordifferenz correcta (ej. 3-2 y tipé 2-1 → diff +1) | +2 |
+| Tendencia correcta (victoria/empate/derrota) | +1 |
 | Campeón correcto | +5 |
 
 ## API routes

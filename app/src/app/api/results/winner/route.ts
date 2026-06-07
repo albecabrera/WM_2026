@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   const session = await getSession()
-  if (!session || session.role !== 'ADMIN')
+  if (!session || (session.role !== 'ADMIN' && session.role !== 'TEACHER'))
     return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 })
 
   const { teamId } = await req.json()

@@ -27,8 +27,7 @@ export default function LoginPage() {
       return
     }
 
-    if (data.role === 'ADMIN') router.push('/admin')
-    else if (data.role === 'TEACHER') router.push('/dashboard?view=teacher')
+    if (data.role === 'ADMIN' || data.role === 'TEACHER') router.push('/admin')
     else router.push('/dashboard')
   }
 
