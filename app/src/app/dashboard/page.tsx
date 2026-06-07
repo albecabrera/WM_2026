@@ -2,6 +2,148 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
 
+function TutorialModal({ onClose }: { onClose: () => void }) {
+  const steps = [
+    {
+      icon: '⚽',
+      title: 'So tippst du ein Ergebnis',
+      text: 'Bei jedem Spiel siehst du zwei Felder. Das linke Feld ist für die Tore der Heimmannschaft, das rechte für die Tore der Gastmannschaft. Tippe einfach eine Zahl ein — zum Beispiel 2 und 1 für ein 2:1.',
+    },
+    {
+      icon: '✅',
+      title: 'Tipp speichern',
+      text: 'Wenn du deine Zahlen eingegeben hast, klicke auf den gelben Knopf „Tipp abgeben". Erst dann wird dein Tipp gespeichert! Du erkennst es daran, dass der Knopf grün wird und „✓ Gespeichert" zeigt.',
+    },
+    {
+      icon: '⏰',
+      title: 'Wichtig: Rechtzeitig tippen!',
+      text: 'Du kannst nur bis 5 Minuten vor dem Anpfiff tippen. Danach ist das Feld gesperrt und zeigt „Gesperrt" an. Also nicht vergessen: vorher tippen!',
+    },
+    {
+      icon: '🏆',
+      title: 'Punkte sammeln',
+      text: (
+        <>
+          <p style={{ margin: 0, marginBottom: '0.5rem' }}>So bekommst du Punkte:</p>
+          <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+            <li><strong style={{ color: '#f5c842' }}>+3 Punkte</strong> — du hast das genaue Ergebnis getippt (z.B. 2:1 = 2:1)</li>
+            <li><strong style={{ color: '#22c55e' }}>+2 Punkte</strong> — die Tordifferenz stimmt (z.B. 3:2 und du tippst 2:1)</li>
+            <li><strong style={{ color: '#94a3b8' }}>+1 Punkt</strong> — du hast richtig getippt wer gewinnt oder ob es ein Unentschieden gibt</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      icon: '🌍',
+      title: 'Wer wird Weltmeister?',
+      text: 'Vor dem Turnier kannst du auch tippen, welches Land die WM gewinnt. Wenn du richtig liegst, bekommst du extra +5 Punkte! Den Tipp findest du oben auf dieser Seite.',
+    },
+  ]
+
+  const [step, setStep] = useState(0)
+  const isLast = step === steps.length - 1
+  const current = steps[step]
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 999,
+      background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '1rem',
+    }}>
+      <div style={{
+        background: '#0f1623',
+        border: '1px solid rgba(245,200,66,0.25)',
+        borderRadius: '16px',
+        maxWidth: '480px',
+        width: '100%',
+        padding: '2rem',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+        position: 'relative',
+      }}>
+        {/* Step dots */}
+        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          {steps.map((_, i) => (
+            <div key={i} style={{
+              width: i === step ? '24px' : '8px',
+              height: '8px',
+              borderRadius: '4px',
+              background: i === step ? '#f5c842' : i < step ? '#f5c84260' : 'rgba(255,255,255,0.1)',
+              transition: 'all 0.3s',
+            }} />
+          ))}
+        </div>
+
+        {/* Icon */}
+        <div style={{ textAlign: 'center', fontSize: '3.5rem', marginBottom: '1rem', lineHeight: 1 }}>
+          {current.icon}
+        </div>
+
+        {/* Title */}
+        <h3 style={{
+          textAlign: 'center',
+          fontFamily: 'var(--font-display)',
+          fontSize: '1.5rem',
+          color: '#f5c842',
+          marginBottom: '1rem',
+          lineHeight: 1.2,
+        }}>
+          {current.title}
+        </h3>
+
+        {/* Text */}
+        <div style={{
+          color: '#94a3b8',
+          fontSize: '0.95rem',
+          lineHeight: '1.65',
+          textAlign: typeof current.text === 'string' ? 'center' : 'left',
+          minHeight: '100px',
+        }}>
+          {current.text}
+        </div>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.75rem' }}>
+          {step > 0 && (
+            <button onClick={() => setStep(s => s - 1)} style={{
+              flex: 1, padding: '0.75rem',
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '10px', color: '#94a3b8',
+              cursor: 'pointer', fontSize: '0.9rem',
+            }}>
+              ← Zurück
+            </button>
+          )}
+          <button onClick={isLast ? onClose : () => setStep(s => s + 1)} style={{
+            flex: 2, padding: '0.75rem',
+            background: '#f5c842', border: 'none',
+            borderRadius: '10px',
+            color: '#0a0e1a', fontWeight: 700,
+            cursor: 'pointer', fontSize: '0.95rem',
+            fontFamily: 'var(--font-display)',
+            letterSpacing: '0.04em',
+          }}>
+            {isLast ? '🚀 Los geht\'s!' : 'Weiter →'}
+          </button>
+        </div>
+
+        {/* Skip */}
+        {!isLast && (
+          <button onClick={onClose} style={{
+            display: 'block', width: '100%', marginTop: '0.75rem',
+            background: 'none', border: 'none',
+            color: 'rgba(255,255,255,0.25)', cursor: 'pointer',
+            fontSize: '0.78rem', textAlign: 'center',
+          }}>
+            Überspringen
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 interface Team { id: string; name: string; shortName: string; flagEmoji: string; group?: string }
 interface Match {
   id: string
@@ -40,9 +182,20 @@ export default function DashboardPage() {
   const [savingWinner, setSavingWinner] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
   const [toast, setToast] = useState('')
+  const [showTutorial, setShowTutorial] = useState(false)
   const prevMatchesRef = useRef<Match[]>([])
 
   const isWinnerOpen = new Date() < TOURNAMENT_START
+
+  useEffect(() => {
+    const seen = localStorage.getItem('wm2026_tutorial_seen')
+    if (!seen) setShowTutorial(true)
+  }, [])
+
+  function closeTutorial() {
+    localStorage.setItem('wm2026_tutorial_seen', '1')
+    setShowTutorial(false)
+  }
 
   const fetchMatches = useCallback(async () => {
     const res = await fetch('/api/matches?phase=GROUP')
@@ -148,6 +301,26 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: '100vh' }}>
+      {/* Tutorial modal */}
+      {showTutorial && <TutorialModal onClose={closeTutorial} />}
+
+      {/* ⏰ Sticky warning banner */}
+      <div style={{
+        background: 'rgba(245,200,66,0.08)',
+        borderBottom: '1px solid rgba(245,200,66,0.2)',
+        padding: '0.55rem 1rem',
+        textAlign: 'center',
+        fontSize: '0.82rem',
+        color: '#f5c842',
+        letterSpacing: '0.02em',
+        position: 'sticky',
+        top: '60px',
+        zIndex: 90,
+        backdropFilter: 'blur(8px)',
+      }}>
+        ⏰ <strong>Wichtig:</strong> Gib deinen Tipp mindestens <strong>5 Minuten vor dem Anpfiff</strong> ab — danach ist er gesperrt!
+      </div>
+
       {/* Toast */}
       {toast && (
         <div style={{
@@ -168,6 +341,16 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <Link href="/dashboard/ko" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>KO-Runden</Link>
             <Link href="/leaderboard" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Rangliste</Link>
+            <button
+              onClick={() => setShowTutorial(true)}
+              title="Spielanleitung anzeigen"
+              style={{
+                background: 'rgba(245,200,66,0.12)', border: '1px solid rgba(245,200,66,0.3)',
+                borderRadius: '50%', width: '32px', height: '32px',
+                color: '#f5c842', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >?</button>
             <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Abmelden</a>
           </div>
         </div>
