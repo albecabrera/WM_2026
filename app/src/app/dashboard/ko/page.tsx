@@ -134,8 +134,8 @@ export default function KOPage() {
 
         {roundMatches.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-            <p style={{ color: 'var(--c-hint)', marginBottom: '0.5rem' }}>Noch keine Teams für diese Runde</p>
-            <p style={{ color: 'var(--c-hint)', fontSize: '0.82rem' }}>Der Admin weist die Teams zu, sobald die Gruppenphase beendet ist.</p>
+            <p style={{ color: 'var(--c-hint)', marginBottom: '0.5rem' }}>⚽ Noch keine Teams für diese Runde</p>
+            <p style={{ color: 'var(--c-hint)', fontSize: '0.82rem' }}>Sobald die Gruppenphase fertig ist, kannst du hier tippen. Schau später wieder vorbei!</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

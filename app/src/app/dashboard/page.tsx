@@ -5,21 +5,41 @@ import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
 
 function TutorialModal({ onClose }: { onClose: () => void }) {
+  const lineStyle = { margin: 0, marginBottom: '0.5rem', lineHeight: 1.5 }
   const steps = [
     {
       icon: '⚽',
-      title: 'So tippst du ein Ergebnis',
-      text: 'Bei jedem Spiel siehst du zwei Felder. Das linke Feld ist für die Tore der Heimmannschaft, das rechte für die Tore der Gastmannschaft. Tippe einfach eine Zahl ein — zum Beispiel 2 und 1 für ein 2:1.',
+      title: 'So tippst du',
+      text: (
+        <>
+          <p style={lineStyle}>Bei jedem Spiel gibt es zwei Felder.</p>
+          <p style={lineStyle}><strong>Links:</strong> Tore vom Heim-Team.</p>
+          <p style={lineStyle}><strong>Rechts:</strong> Tore vom Gast-Team.</p>
+          <p style={{ ...lineStyle, color: '#f5c842' }}>Beispiel: 2 und 1 = 2:1 ⚽</p>
+        </>
+      ),
     },
     {
       icon: '✅',
       title: 'Tipp speichern',
-      text: 'Wenn du deine Zahlen eingegeben hast, klicke auf den gelben Knopf „Tipp abgeben". Erst dann wird dein Tipp gespeichert! Du erkennst es daran, dass der Knopf grün wird und „✓ Gespeichert" zeigt.',
+      text: (
+        <>
+          <p style={lineStyle}>Tippe deine Zahlen ein.</p>
+          <p style={lineStyle}>Klicke den gelben Knopf <strong>„Tipp abgeben"</strong>.</p>
+          <p style={{ ...lineStyle, color: '#22c55e' }}>Wird er grün mit „✓ Gespeichert" — fertig! 🎉</p>
+        </>
+      ),
     },
     {
       icon: '⏰',
-      title: 'Wichtig: Rechtzeitig tippen!',
-      text: 'Du kannst nur bis 5 Minuten vor dem Anpfiff tippen. Danach ist das Feld gesperrt und zeigt „Gesperrt" an. Also nicht vergessen: vorher tippen!',
+      title: 'Nicht zu spät!',
+      text: (
+        <>
+          <p style={lineStyle}>Tippe bis <strong>5 Minuten vor</strong> dem Spiel.</p>
+          <p style={lineStyle}>Danach ist das Feld <strong>gesperrt</strong>.</p>
+          <p style={{ ...lineStyle, color: '#f5c842' }}>Also: lieber früh tippen! ⏰</p>
+        </>
+      ),
     },
     {
       icon: '🏆',
@@ -28,9 +48,9 @@ function TutorialModal({ onClose }: { onClose: () => void }) {
         <>
           <p style={{ margin: 0, marginBottom: '0.5rem' }}>So bekommst du Punkte:</p>
           <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.8' }}>
-            <li><strong style={{ color: '#f5c842' }}>+3 Punkte</strong> — du hast das genaue Ergebnis getippt (z.B. 2:1 = 2:1)</li>
-            <li><strong style={{ color: '#22c55e' }}>+2 Punkte</strong> — die Tordifferenz stimmt (z.B. 3:2 und du tippst 2:1)</li>
-            <li><strong style={{ color: '#94a3b8' }}>+1 Punkt</strong> — du hast richtig getippt wer gewinnt oder ob es ein Unentschieden gibt</li>
+            <li><strong style={{ color: '#f5c842' }}>+3</strong> — genaues Ergebnis (z.B. 2:1 = 2:1)</li>
+            <li><strong style={{ color: '#22c55e' }}>+2</strong> — Tordifferenz stimmt (z.B. 3:2 statt 2:1)</li>
+            <li><strong style={{ color: '#94a3b8' }}>+1</strong> — richtiger Sieger oder Unentschieden</li>
           </ul>
         </>
       ),
@@ -38,7 +58,13 @@ function TutorialModal({ onClose }: { onClose: () => void }) {
     {
       icon: '🌍',
       title: 'Wer wird Weltmeister?',
-      text: 'Vor dem Turnier kannst du auch tippen, welches Land die WM gewinnt. Wenn du richtig liegst, bekommst du extra +5 Punkte! Den Tipp findest du oben auf dieser Seite.',
+      text: (
+        <>
+          <p style={lineStyle}>Tippe vor dem Turnier: Wer gewinnt die WM?</p>
+          <p style={{ ...lineStyle, color: '#f5c842' }}>Richtig = +5 Punkte! 🏆</p>
+          <p style={lineStyle}>Den Tipp findest du oben auf der Seite.</p>
+        </>
+      ),
     },
   ]
 
@@ -250,6 +276,10 @@ export default function DashboardPage() {
   }, [fetchMatches, fetchLeaderboard])
 
   const groupMatches = matches.filter((m) => m.group === activeGroup)
+  const tippedInGroup = groupMatches.filter((m) => {
+    const t = tips[m.id]
+    return (t && t.home !== '' && t.away !== '') || m.userTip
+  }).length
 
   function isTippable(match: Match) {
     const cutoff = new Date(new Date(match.kickoff).getTime() - 5 * 60 * 1000)
@@ -433,7 +463,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem', alignItems: 'start' }}>
+        <div className="dashboard-grid">
 
           {/* Main: Match tips */}
           <div>
@@ -460,6 +490,25 @@ export default function DashboardPage() {
                 </button>
               ))}
             </div>
+
+            {/* Progress bar */}
+            {groupMatches.length > 0 && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--c-muted)', marginBottom: '6px' }}>
+                  <span>Gruppe {activeGroup}</span>
+                  <span style={{ color: tippedInGroup === groupMatches.length ? 'var(--c-green)' : 'var(--c-gold)', fontWeight: 600 }}>
+                    {tippedInGroup === groupMatches.length ? '✓ Alle getippt!' : `${tippedInGroup} von ${groupMatches.length} getippt`}
+                  </span>
+                </div>
+                <div style={{ height: '8px', borderRadius: '4px', background: 'var(--c-border)', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', width: `${(tippedInGroup / groupMatches.length) * 100}%`,
+                    background: tippedInGroup === groupMatches.length ? 'var(--c-green)' : 'var(--c-gold)',
+                    borderRadius: '4px', transition: 'width 0.3s ease',
+                  }} />
+                </div>
+              </div>
+            )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {groupMatches.map((match) => {
@@ -547,14 +596,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Sidebar */}
-          <div style={{ position: 'sticky', top: '80px' }}>
+          <div className="sidebar-sticky" style={{ position: 'sticky', top: '80px' }}>
             <div className="card">
               <h4 style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Rangliste</span>
                 <Link href="/leaderboard" style={{ fontSize: '0.75rem', color: 'var(--c-gold)', textDecoration: 'none' }}>Alle →</Link>
               </h4>
               {leaderboard.length === 0 ? (
-                <p style={{ color: 'var(--c-hint)', fontSize: '0.85rem' }}>Noch keine Tipps</p>
+                <p style={{ color: 'var(--c-hint)', fontSize: '0.85rem' }}>🎯 Noch keine Tipps — sei der Erste!</p>
               ) : (
                 leaderboard.map((u, i) => (
                   <div key={u.id} style={{
@@ -579,8 +628,15 @@ export default function DashboardPage() {
       </div>
 
       <style>{`
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: 2rem;
+          align-items: start;
+        }
         @media (max-width: 768px) {
-          .dashboard-grid { grid-template-columns: 1fr !important; }
+          .dashboard-grid { grid-template-columns: 1fr; }
+          .dashboard-grid .sidebar-sticky { position: static !important; }
         }
       `}</style>
       </div>

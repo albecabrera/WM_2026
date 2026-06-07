@@ -200,3 +200,40 @@ Sprint 3 (fase KO 4-Jul → 19-Jul):
 | Turniersieger richtig | +5 |
 
 **Abgabeschluss:** 5 Minutos antes del pitido inicial.
+
+---
+
+# Revisión completa — 2026-06-07
+
+## Auditoría (verificado en vivo, puerto 3000)
+
+| Área | Estado |
+|------|--------|
+| Login (Admin/Lehrer/Schüler) | ✅ funciona |
+| 48 equipos · 72 grupos · 32 KO | ✅ |
+| Auto-advance KO (ganador → siguiente ronda) | ✅ probado (CAN → #89) |
+| Empate KO → modal penales → advance manual | ✅ probado (MEX → #89) |
+| Semifinal: ganador→Final, perdedor→3er puesto | ✅ lógica correcta |
+| Guards de seguridad (alumno 403 en admin) | ✅ probado |
+| Dark/Light, tutorial, banner 5-min, fondos | ✅ |
+| tsc --noEmit | ✅ sin errores |
+
+## Cambios obligatorios (correcciones)
+
+- [x] **C1 · README sync** — rutas API reales + features nuevas documentadas.
+- [x] **C2 · Bug responsive móvil** — grid movido a `.dashboard-grid` en `<style>`,
+  media query `<768px` → 1 columna, sidebar pasa a `position: static`.
+
+## Mejoras UI/UX aplicadas
+
+- [x] **M1 · Textos tutorial más cortos** — 5 pasos reescritos en frases cortas,
+      una idea por línea, alemán fácil para 5/6 grado.
+- [x] **M2 · Barra de progreso por grupo** — "X von 6 getippt" + barra que se pone
+      verde al completar el grupo.
+- [x] **M3 · Estado vacío más amigable** — dashboard, leaderboard y KO con mensajes
+      claros y simpáticos.
+
+## Decisiones del usuario
+
+- Aplicar los 4 cambios + actualizar README. ✅ Hecho.
+

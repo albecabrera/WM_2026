@@ -108,7 +108,7 @@ export default function LeaderboardPage() {
                 </tr>
               ))}
               {data.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--c-hint)', padding: '2rem' }}>Noch keine Einträge</td></tr>
+                <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--c-hint)', padding: '2rem' }}>🎯 Noch keine Punkte — tippe dein erstes Spiel!</td></tr>
               )}
             </tbody>
           </table>

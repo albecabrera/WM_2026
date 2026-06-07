@@ -10,7 +10,7 @@ WM_2026/
 │   ├── prisma/       Schema + seed (SQLite)
 │   └── src/app/      App Router pages & API routes
 ├── preview/          Prototipo HTML standalone (sin servidor)
-└── PLAN.md           Roadmap EPICs & User Stories
+└── plan.md           Roadmap EPICs + plan de revisión
 ```
 
 ## Inicio rápido
@@ -21,7 +21,7 @@ npm install
 cp .env.example .env          # editar JWT_SECRET con un valor aleatorio
 npx prisma db push
 npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
-npm run dev                   # http://localhost:3000
+npm run dev                   # http://localhost:3000 (o 3001 si está ocupado)
 ```
 
 > **JWT_SECRET**: cualquier string largo aleatorio, p. ej. `openssl rand -hex 32`
@@ -40,19 +40,28 @@ npm run dev                   # http://localhost:3000
 ## Funcionalidades
 
 ### Para alumnos
-- Portada premium de bienvenida con conteo de participantes
+- Portada premium de bienvenida con estadísticas del torneo
 - Login con código personal (sin contraseña)
+- Tutorial paso a paso tras el login (alemán fácil para 5/6 grado)
+- Banner fijo de aviso: tipear 5 min antes del pitido
 - Pronósticos de fase de grupos (72 partidos)
+- **Barra de progreso por grupo** ("3 von 6 getippt")
 - Pronósticos de rondas KO (R32 → Final)
 - Pronóstico del campeón del torneo (hasta el 11-Jun)
 - Tabla de clasificación con puntos en tiempo real
-- Actualización automática cada 30 segundos
+- Actualización automática cada 30 segundos + toast de resultados
 - Badge `● LIVE` en partidos en curso
+- **Modo claro / oscuro** (toggle ☀️/🌙, se recuerda en localStorage)
+- Diseño responsive (1 columna en móvil/tablet)
 
 ### Para maestros / admin
 - Panel de administración con 5 pestañas
 - Cargar resultados de grupos y KO
-- Asignar equipos a brackets KO
+- **Auto-avance del bracket KO**: al cargar el resultado de un partido KO,
+  el ganador pasa automáticamente a la siguiente ronda
+- **Modal de penales**: si un partido KO termina empatado, aparece un modal
+  para elegir quién ganó (prórroga/penales) y avanzar manualmente
+- Semifinal: el ganador va al Final, el perdedor al partido por el 3er puesto
 - Revelar campeón con pantalla de celebración + confeti
 - Filtrar celebración por clase
 - Ver códigos QR de cada alumno (para imprimir)
@@ -75,24 +84,37 @@ Desde el panel de admin, pestaña "Schüler verwalten":
 | Tendencia correcta (victoria/empate/derrota) | +1 |
 | Campeón correcto | +5 |
 
-## API routes
+## API routes (reales)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| POST | `/api/auth/login` | Login con código |
+| POST | `/api/auth` | Login con código |
 | POST | `/api/auth/logout` | Logout |
 | GET | `/api/me` | Stats del usuario (puntos, rank, tipps) |
-| GET | `/api/matches` | Partidos de grupos |
-| GET | `/api/matches/ko` | Partidos KO |
-| POST | `/api/tips` | Guardar pronóstico |
-| GET/POST | `/api/tips/winner` | Ver/guardar pronóstico de campeón |
-| GET | `/api/results` | Tabla de clasificación |
+| GET | `/api/matches?phase=GROUP` | Partidos por fase (GROUP, ROUND_OF_32, …) |
 | GET | `/api/teams` | Los 48 equipos |
-| POST | `/api/admin/results` | (Admin) Cargar resultado de partido |
-| GET/PUT | `/api/admin/ko` | (Admin) Ver/asignar equipos KO |
-| POST | `/api/admin/reset-code` | (Admin) Buscar/resetear código de alumno |
-| GET | `/api/admin/qr` | (Admin) Generar QR PNG de código |
-| POST | `/api/results/winner` | (Admin) Revelar campeón + award puntos |
+| POST | `/api/tips` | Guardar pronóstico de partido |
+| GET/POST | `/api/tips/winner` | Ver/guardar pronóstico de campeón |
+| GET | `/api/leaderboard` | Tabla de clasificación (`?class=6a` opcional) |
+| POST | `/api/results` | (Admin/Lehrer) Cargar resultado + auto-avance KO |
+| GET/PUT | `/api/admin/ko` | (Admin/Lehrer) Ver/asignar equipos KO |
+| POST | `/api/admin/advance` | (Admin/Lehrer) Avance manual del ganador (penales) |
+| GET/POST | `/api/admin` | (Admin/Lehrer) Listar/crear alumnos |
+| POST | `/api/admin/reset-code` | (Admin/Lehrer) Buscar/resetear código de alumno |
+| GET | `/api/admin/qr` | (Admin/Lehrer) Generar QR PNG de código |
+| POST | `/api/results/winner` | (Admin/Lehrer) Revelar campeón + award puntos |
+
+> Todos los endpoints admin devuelven `403 Keine Berechtigung` a alumnos.
+
+## Bracket KO (auto-avance)
+
+Al cargar el resultado de un partido KO en `/api/results`:
+
+- **Victoria clara** → el ganador se asigna automáticamente al slot correcto del
+  siguiente partido (R32 #73–88 → R16 #89–96 → QF #97–100 → SF #101–102 → Final #104).
+- **Empate** → la respuesta trae `needsPenaltyWinner: true`; el admin elige el ganador
+  en el modal y se llama `/api/admin/advance`.
+- **Semifinales** (#101, #102) → ganador al Final (#104), perdedor al 3er puesto (#103).
 
 ## Variables de entorno
 
@@ -104,11 +126,12 @@ NEXT_PUBLIC_BASE_URL="http://localhost:3000"
 
 ## Tech stack
 
-- **Next.js 14** — App Router, Server Components, Server Actions
+- **Next.js 14** — App Router, Server Components
 - **Prisma 5** + **SQLite** — ORM + base de datos local
+  > Nota: SQLite no soporta `enum`; los roles/fases/estados son `String`.
 - **JWT** via `jsonwebtoken` + `cookies-next`
 - **QR codes** via `qrcode` npm package
-- **Vercel** — deployment con `vercel.json` en raíz
+- **Tema claro/oscuro** — CSS custom properties + `[data-theme]` en `<html>`
 
 ## Deployment (Vercel)
 
