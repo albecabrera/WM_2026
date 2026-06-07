@@ -12,7 +12,7 @@ model User {
   name      String
   classCode String   // e.g. "6a", "5b"
   loginCode String   @unique // e.g. "mueller6a"
-  role      Role     @default(STUDENT)
+  role      String   @default("STUDENT")
   createdAt DateTime @default(now())
 
   tips              Tip[]
@@ -44,7 +44,7 @@ model Team {
 model Match {
   id          String      @id @default(cuid())
   matchNumber Int         @unique
-  phase       MatchPhase
+  phase       String
   group       String?     // for group stage: "A"-"L"
   round       String?     // for KO: "R32", "R16", "QF", "SF", "F"
   homeTeamId  String?
@@ -54,7 +54,7 @@ model Match {
   kickoff     DateTime
   homeGoals   Int?
   awayGoals   Int?
-  status      MatchStatus @default(UPCOMING)
+  status      String      @default("UPCOMING")
   venue       String
 
   tips Tip[]
@@ -86,23 +86,3 @@ model TournamentWinnerTip {
   team Team @relation(fields: [teamId], references: [id])
 }
 
-enum Role {
-  STUDENT
-  TEACHER
-  ADMIN
-}
-
-enum MatchPhase {
-  GROUP
-  ROUND_OF_32
-  ROUND_OF_16
-  QUARTER_FINAL
-  SEMI_FINAL
-  FINAL
-}
-
-enum MatchStatus {
-  UPCOMING
-  LIVE
-  FINISHED
-}

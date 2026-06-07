@@ -39,6 +39,33 @@ export default function AdminPage() {
   const [koTeams, setKoTeams] = useState<Record<string, { home: string; away: string }>>({})
   const [activeKoRound, setActiveKoRound] = useState('R32')
   const [printMode, setPrintMode] = useState(false)
+  const [resetQuery, setResetQuery] = useState('')
+  const [resetResults, setResetResults] = useState<any[]>([])
+  const [resetting, setResetting] = useState(false)
+  const [resetMsg, setResetMsg] = useState({ text: '', ok: true })
+
+  async function lookupOrResetCode(action: 'lookup' | 'reset' = 'lookup') {
+    if (!resetQuery.trim()) return
+    setResetting(true)
+    const res = await fetch('/api/admin/reset-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: resetQuery.trim(), action }),
+    })
+    const data = await res.json()
+    setResetting(false)
+    if (!res.ok) {
+      setResetMsg({ text: data.error, ok: false })
+      if (data.matches) setResetResults(data.matches)
+    } else if (action === 'lookup') {
+      setResetResults(Array.isArray(data) ? data : [data])
+      setResetMsg({ text: '', ok: true })
+    } else {
+      setResetMsg({ text: `✓ Neuer Code für ${data.name}: ${data.newCode}`, ok: true })
+      setResetResults([])
+      setUsers((prev) => prev.map((u) => u.loginCode.startsWith(resetQuery.replace(/^#/, '').toLowerCase()) ? { ...u, loginCode: data.newCode } : u))
+    }
+  }
 
   const showMsg = (text: string, ok = true) => {
     setMsg({ text, ok })
@@ -389,6 +416,57 @@ export default function AdminPage() {
         {/* ── Schüler verwalten ── */}
         {tab === 'users' && (
           <div>
+            {/* Code lookup / reset */}
+            <div className="card" style={{ marginBottom: '1.5rem', border: '1px solid rgba(245,200,66,0.15)' }}>
+              <h4 style={{ marginBottom: '0.4rem' }}>🔍 Code nachschlagen / zurücksetzen</h4>
+              <p style={{ color: 'var(--c-muted)', fontSize: '0.82rem', marginBottom: '1rem' }}>
+                Schreibe <code style={{ color: 'var(--c-gold)' }}>#Nachname</code> um den Login-Code zu finden oder zurückzusetzen.
+              </p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <input
+                  className="input" style={{ maxWidth: '260px' }}
+                  value={resetQuery}
+                  onChange={(e) => setResetQuery(e.target.value)}
+                  placeholder="#Müller"
+                  onKeyDown={(e) => e.key === 'Enter' && lookupOrResetCode('lookup')}
+                />
+                <button className="btn btn-ghost" onClick={() => lookupOrResetCode('lookup')}
+                  disabled={resetting || !resetQuery.trim()} style={{ fontSize: '0.85rem' }}>
+                  {resetting ? 'Suche...' : '🔍 Suchen'}
+                </button>
+              </div>
+
+              {resetMsg.text && (
+                <div style={{
+                  marginTop: '0.75rem', padding: '0.6rem 0.8rem', borderRadius: 'var(--r-sm)',
+                  background: resetMsg.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                  border: `1px solid ${resetMsg.ok ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                  color: resetMsg.ok ? 'var(--c-green)' : 'var(--c-red)', fontSize: '0.85rem',
+                }}>
+                  {resetMsg.text}
+                </div>
+              )}
+
+              {resetResults.length > 0 && (
+                <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {resetResults.map((u, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.9rem',
+                      background: 'var(--c-surface2)', borderRadius: 'var(--r-sm)', flexWrap: 'wrap',
+                    }}>
+                      <span style={{ fontWeight: 500, flex: 1 }}>{u.name}</span>
+                      <span className="badge badge-muted">{(u.classCode ?? '').toUpperCase()}</span>
+                      <code style={{ color: 'var(--c-gold)', fontSize: '0.9rem' }}>{u.loginCode ?? u.newCode}</code>
+                      <button className="btn btn-ghost" style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}
+                        onClick={() => { setResetQuery(`#${u.name}`); lookupOrResetCode('reset') }}>
+                        ↺ Code ändern
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="card" style={{ marginBottom: '1.5rem' }}>
               <h4 style={{ marginBottom: '1rem' }}>Neuen Schüler anlegen</h4>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>

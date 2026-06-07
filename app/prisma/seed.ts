@@ -1,4 +1,4 @@
-import { PrismaClient, MatchPhase, MatchStatus } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -81,9 +81,9 @@ function groupMatches(
     d.setHours(i % 2 === 0 ? 18 : 21, 0, 0, 0)
     return {
       matchNumber: matchNumberOffset + i + 1,
-      phase: MatchPhase.GROUP, group,
+      phase: 'GROUP', group,
       homeTeamId: home.id, awayTeamId: away.id,
-      kickoff: d, status: MatchStatus.UPCOMING, venue: venues[i],
+      kickoff: d, status: 'UPCOMING', venue: venues[i],
     }
   })
 }
@@ -163,34 +163,34 @@ async function main() {
     // R32 — Runde der 32 (16 matches, #73–88)
     ...Array.from({ length: 16 }, (_, i) => ({
       matchNumber: 73 + i,
-      phase: MatchPhase.ROUND_OF_32, round: 'R32',
+      phase: 'ROUND_OF_32', round: 'R32',
       homeTeamId: null, awayTeamId: null,
       kickoff: new Date(`2026-07-0${4 + Math.floor(i / 4)}T${i % 2 === 0 ? '18' : '21'}:00:00`),
-      status: MatchStatus.UPCOMING, venue: VENUES[i % 4],
+      status: 'UPCOMING', venue: VENUES[i % 4],
     })),
     // R16 — Achtelfinale (8 matches, #89–96)
     ...Array.from({ length: 8 }, (_, i) => ({
       matchNumber: 89 + i,
-      phase: MatchPhase.ROUND_OF_16, round: 'R16',
+      phase: 'ROUND_OF_16', round: 'R16',
       homeTeamId: null, awayTeamId: null,
       kickoff: new Date(`2026-07-${String(9 + Math.floor(i / 4)).padStart(2,'0')}T${i % 2 === 0 ? '18' : '21'}:00:00`),
-      status: MatchStatus.UPCOMING, venue: VENUES[i % 4],
+      status: 'UPCOMING', venue: VENUES[i % 4],
     })),
     // QF — Viertelfinale (4 matches, #97–100)
     ...Array.from({ length: 4 }, (_, i) => ({
       matchNumber: 97 + i,
-      phase: MatchPhase.QUARTER_FINAL, round: 'QF',
+      phase: 'QUARTER_FINAL', round: 'QF',
       homeTeamId: null, awayTeamId: null,
       kickoff: new Date(`2026-07-${String(13 + Math.floor(i / 2)).padStart(2,'0')}T${i % 2 === 0 ? '18' : '21'}:00:00`),
-      status: MatchStatus.UPCOMING, venue: VENUES[i % 4],
+      status: 'UPCOMING', venue: VENUES[i % 4],
     })),
     // SF — Halbfinale (2 matches, #101–102)
-    { matchNumber: 101, phase: MatchPhase.SEMI_FINAL, round: 'SF', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-17T21:00:00'), status: MatchStatus.UPCOMING, venue: 'MetLife Stadium' },
-    { matchNumber: 102, phase: MatchPhase.SEMI_FINAL, round: 'SF', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-18T21:00:00'), status: MatchStatus.UPCOMING, venue: 'SoFi Stadium' },
+    { matchNumber: 101, phase: 'SEMI_FINAL', round: 'SF', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-17T21:00:00'), status: 'UPCOMING', venue: 'MetLife Stadium' },
+    { matchNumber: 102, phase: 'SEMI_FINAL', round: 'SF', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-18T21:00:00'), status: 'UPCOMING', venue: 'SoFi Stadium' },
     // 3rd place (#103)
-    { matchNumber: 103, phase: MatchPhase.SEMI_FINAL, round: '3RD', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-22T21:00:00'), status: MatchStatus.UPCOMING, venue: 'AT&T Stadium' },
+    { matchNumber: 103, phase: 'SEMI_FINAL', round: '3RD', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-22T21:00:00'), status: 'UPCOMING', venue: 'AT&T Stadium' },
     // Final (#104)
-    { matchNumber: 104, phase: MatchPhase.FINAL, round: 'FINAL', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-26T21:00:00'), status: MatchStatus.UPCOMING, venue: 'MetLife Stadium' },
+    { matchNumber: 104, phase: 'FINAL', round: 'FINAL', homeTeamId: null, awayTeamId: null, kickoff: new Date('2026-07-26T21:00:00'), status: 'UPCOMING', venue: 'MetLife Stadium' },
   ]
 
   for (const m of koMatches) await prisma.match.create({ data: m })
