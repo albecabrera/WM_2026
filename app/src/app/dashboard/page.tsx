@@ -228,6 +228,7 @@ export default function DashboardPage() {
   const [showTutorial, setShowTutorial] = useState(false)
   const [notifPermission, setNotifPermission] = useState<NotificationPermission>('default')
   const [notifDismissed, setNotifDismissed] = useState(false)
+  const [teacherWelcomeDismissed, setTeacherWelcomeDismissed] = useState(false)
   const prevMatchesRef = useRef<Match[]>([])
   const scheduledRef = useRef<Set<string>>(new Set())
 
@@ -491,10 +492,77 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* 👩‍🏫 Teacher welcome banner */}
+      {me?.role === 'TEACHER' && !teacherWelcomeDismissed && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 998,
+          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '1rem',
+        }}>
+          <div style={{
+            background: 'var(--c-surface)',
+            border: '1px solid rgba(245,200,66,0.3)',
+            borderRadius: '16px',
+            maxWidth: '420px', width: '100%',
+            padding: '2rem',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>👩‍🏫</div>
+            <h2 style={{
+              fontFamily: 'var(--font-display)', fontSize: '2rem',
+              color: 'var(--c-gold)', marginBottom: '0.4rem', lineHeight: 1,
+            }}>
+              Willkommen, {me.name}!
+            </h2>
+            <p style={{ color: 'var(--c-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              Du bist als <strong style={{ color: 'var(--c-text)' }}>Lehrkraft</strong> eingeloggt.
+              Du spielst mit und siehst alle Funktionen für deine Klasse.
+            </p>
+            <div style={{
+              background: 'rgba(245,200,66,0.06)',
+              border: '1px solid rgba(245,200,66,0.15)',
+              borderRadius: '10px', padding: '1rem',
+              marginBottom: '1.5rem', textAlign: 'left',
+              fontSize: '0.82rem', color: 'var(--c-muted)', lineHeight: 1.7,
+            }}>
+              <div>📋 <strong>Klassenliste</strong> — Codes der Schüler ausdrucken</div>
+              <div>⚙️ <strong>Verwaltung</strong> — Codes zurücksetzen</div>
+              <div>📘 <strong>Handbuch</strong> — Anleitung für Lehrkräfte</div>
+              <div>🔔 <strong>Benachrichtigungen</strong> — Spielerinnerungen aktivieren</div>
+            </div>
+            <button
+              onClick={() => setTeacherWelcomeDismissed(true)}
+              style={{
+                background: 'var(--c-gold)', color: '#0a0e1a',
+                border: 'none', borderRadius: '10px',
+                padding: '0.8rem 2rem', fontSize: '1rem',
+                fontFamily: 'var(--font-display)', fontWeight: 700,
+                cursor: 'pointer', width: '100%',
+                letterSpacing: '0.04em',
+              }}
+            >
+              Los geht&apos;s! →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Nav */}
       <nav className="nav">
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px' }}>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--c-gold)' }}>⚽ WM 2026</span>
+          {me?.role === 'TEACHER' && (
+            <span style={{
+              fontSize: '0.8rem', color: 'var(--c-muted)',
+              background: 'var(--c-surface)', border: '1px solid var(--c-border)',
+              borderRadius: '6px', padding: '0.2rem 0.65rem',
+              marginLeft: '0.25rem',
+            }}>
+              👩‍🏫 {me.name}
+            </span>
+          )}
           {urgentUntipped.length > 0 && (
             <span style={{
               background: '#ef4444', color: '#fff', borderRadius: '100px',

@@ -129,8 +129,8 @@ async function main() {
     'Flankenzauber','Torphantom','Dribbeldrache','Rasensturm','Balladler',
   ]
   const gelbTeachers = [
-    { name: 'Torpantherspur', loginCode: 'lehrerinca' },
-    { name: 'Rasenzauberwind', loginCode: 'lehrerow'  },
+    { name: 'Cabrera', loginCode: 'lehrerinca' },
+    { name: 'Owji',    loginCode: 'lehrerow'   },
   ]
 
   for (const name of gelbStudents) {
@@ -150,8 +150,8 @@ async function main() {
     'Torhelfer','Flankenstar','Abwehrzauber','Mittelfeldstar','Schussgeist',
   ]
   const k4Teachers = [
-    { name: 'Defensivgeist', loginCode: 'lehrerinve' },
-    { name: 'Spielleitung',  loginCode: 'lehrerca'   },
+    { name: 'Venedey', loginCode: 'lehrerinve' },
+    { name: 'Cabrera', loginCode: 'lehrerca'   },
   ]
 
   for (const name of k4Students) {
