@@ -1,50 +1,65 @@
-import { redirect } from 'next/navigation'
+'use client'
+
+import { Suspense, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { getSession, isTeacherOrAdmin } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { getSchool, getClassesForSchool, ALL_CLASSES } from '@/lib/classes'
+import { getSchool, getClassesForSchool } from '@/lib/classes'
 import { PrintButton } from './PrintButton'
 
-interface PageProps {
-  searchParams: { class?: string }
+interface ClassEntry {
+  code: string
+  label: string
+  teachers: { name: string; loginCode: string }[]
+  students: { name: string; loginCode: string }[]
 }
 
-export default async function KlassenlistePage({ searchParams }: PageProps) {
-  const session = await getSession()
-  if (!session) redirect('/login')
-  if (!isTeacherOrAdmin(session)) redirect('/dashboard')
+function KlassenlisteContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [session, setSession] = useState<{ role: string; classCode: string } | null>(null)
+  const [classes, setClasses] = useState<ClassEntry[]>([])
 
-  const filterClass = session.role === 'ADMIN' ? (searchParams.class ?? null) : null
-  const filterSchool = session.role === 'ADMIN' ? ((searchParams as any).school as 'bbg' | 'esg' | undefined) : undefined
-  const userSchool = getSchool(session.classCode) ?? 'bbg'
-  const activeSchool: 'bbg' | 'esg' = filterSchool ?? (session.role === 'ADMIN' ? 'bbg' : userSchool)
+  const filterClass = searchParams.get('class')
+  const filterSchool = searchParams.get('school') as 'bbg' | 'esg' | null
 
+  useEffect(() => {
+    fetch('/api/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (!me) return router.replace('/login')
+        if (me.role !== 'ADMIN' && me.role !== 'TEACHER') return router.replace('/dashboard')
+        setSession(me)
+      })
+      .catch(() => router.replace('/login'))
+  }, [router])
+
+  const isAdmin = session?.role === 'ADMIN'
+  const userSchool = session ? (getSchool(session.classCode) ?? 'bbg') : 'bbg'
+  const activeSchool: 'bbg' | 'esg' = isAdmin ? (filterSchool ?? 'bbg') : userSchool
   const schoolClasses = getClassesForSchool(activeSchool)
-  const allowedCodes =
-    session.role === 'ADMIN'
-      ? filterClass ? [filterClass] : schoolClasses.map((c) => c.code)
-      : [session.classCode]
 
-  const users = await prisma.user.findMany({
-    where: { classCode: { in: allowedCodes }, role: { in: ['STUDENT', 'TEACHER'] } },
-    select: { name: true, classCode: true, loginCode: true, role: true },
-    orderBy: [{ classCode: 'asc' }, { role: 'asc' }, { name: 'asc' }],
-  })
-
-  const classes = allowedCodes
-    .map((code) => {
-      const label = ALL_CLASSES.find((c: {code: string; label: string}) => c.code === code)?.label ?? code
-      const classUsers = users.filter((u) => u.classCode === code)
-      return {
-        code,
-        label,
-        teachers: classUsers.filter((u) => u.role === 'TEACHER'),
-        students: classUsers.filter((u) => u.role === 'STUDENT'),
-      }
-    })
-    .filter((c) => c.teachers.length > 0 || c.students.length > 0)
+  useEffect(() => {
+    if (!session) return
+    const params = new URLSearchParams()
+    if (isAdmin) {
+      if (filterClass) params.set('class', filterClass)
+      else params.set('school', activeSchool)
+    }
+    fetch('/api/admin/klassenliste?' + params.toString())
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: any[]) =>
+        setClasses(
+          data
+            .map((c) => ({ code: c.code, label: c.name, teachers: c.teachers, students: c.students }))
+            .filter((c) => c.teachers.length > 0 || c.students.length > 0)
+        )
+      )
+      .catch(() => setClasses([]))
+  }, [session, isAdmin, filterClass, activeSchool])
 
   const today = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+  if (!session) return null
 
   return (
     <>
@@ -307,5 +322,14 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
         </div>
       </div>
     </>
+  )
+}
+
+// useSearchParams exige un boundary de Suspense en el export estático.
+export default function KlassenlistePage() {
+  return (
+    <Suspense fallback={null}>
+      <KlassenlisteContent />
+    </Suspense>
   )
 }

@@ -25,14 +25,19 @@ Schulinternes Tipp-Spiel zur FIFA WM 2026 für das **BBG** (Gruppe Gelb) und die
 
 ## Schnellstart
 
+Die App läuft als **statisches Frontend (Next.js Export) + PHP-Backend** auf diesem Server
+(Plesk, PHP 8.1). `httpdocs/` ist zugleich Repo-Root und Document-Root.
+
 ```bash
-cd app
-npm install
-cp .env.example .env          # JWT_SECRET setzen: openssl rand -hex 32
-npx prisma db push
-npm run db:seed
-npm run dev                   # http://localhost:3000
+# Datenbank initialisieren / neu seeden (ACHTUNG: --force löscht alle Tipps!)
+php api/cli/init.php          # legt wm-data/wm.sqlite an (außerhalb von httpdocs)
+
+# Frontend neu bauen + deployen (Node 20 liegt lokal unter ../.local/node20)
+app/deploy.sh
 ```
+
+Secrets (`JWT_SECRET`, `FOOTBALL_API_KEY`) liegen in `../wm-data/config.php` —
+außerhalb des Document-Root, nicht im Repo.
 
 ---
 
@@ -161,23 +166,20 @@ Echte Namen · E-Mail-Adressen · Geburtsdatum · IP-Adressen · Passwörter · 
 
 | Technologie | Version | Zweck |
 |-------------|---------|-------|
-| **Next.js** | 14.2 | React-Framework — App Router, Server Components, API Routes |
+| **Next.js** | 14.2 | React-Framework — App Router, statischer Export (`output: 'export'`) |
 | **React** | 18 | UI-Bibliothek |
 | **TypeScript** | 5 | Typsicherheit |
 | **CSS (plain)** | — | Styling via CSS-Variablen + `globals.css` — kein Tailwind, kein CSS-in-JS |
-| **clsx** | 2.1 | Bedingte Klassen-Namen |
+| **qrcode** | 1.5 | QR-Code-Generierung im Browser (lokal, kein Drittdienst) |
 
 ### Backend / API
 
 | Technologie | Version | Zweck |
 |-------------|---------|-------|
-| **Next.js API Routes** | 14.2 | REST-Endpunkte (`route.ts`) |
-| **Prisma ORM** | 5.10 | Typsicherer Datenbankzugriff |
-| **SQLite** | — | Lokale Datenbank — kein externer DB-Server |
-| **jsonwebtoken** | 9 | JWT-Generierung und -Verifikation |
-| **bcryptjs** | 2.4 | Hashing-Bibliothek |
-| **cookies-next** | 4.1 | `httpOnly`-Cookie-Management |
-| **qrcode** | 1.5 | QR-Code-Generierung (lokal, kein Drittdienst) |
+| **PHP** | 8.1 | REST-Endpunkte unter `api/` (Router + Route-Handler) |
+| **PDO SQLite** | — | Datenbankzugriff — DB-Datei `../wm-data/wm.sqlite`, kein externer DB-Server |
+| **JWT (HS256)** | — | Eigene Implementierung in `api/lib/bootstrap.php`, Session als `httpOnly`-Cookie |
+| **cURL** | — | Auto-Sync gegen football-data.org |
 
 ### Fonts (self-hosted)
 
@@ -189,11 +191,11 @@ Echte Namen · E-Mail-Adressen · Geburtsdatum · IP-Adressen · Passwörter · 
 
 ### Architekturmuster
 
-- **App Router** (Next.js 14) — Server Components by default, `'use client'` nur wo nötig
-- **Container/Presentational** — Seiten als Server Components, interaktive Teile als Client Components
+- **Statisches Frontend + PHP-API** — Next.js-Export liefert reines HTML/JS, alle Daten kommen per `fetch('/api/…')` vom PHP-Backend auf derselben Domain
+- **Client-seitige Guards** — `AuthGuard` prüft die Session gegen `/api/me` (Cookie ist `httpOnly`, für JS unlesbar)
 - **REST** — einfache `GET/POST`-Endpunkte
 - **JWT + `httpOnly`-Cookie** — Session ohne `localStorage`-Token
-- **Schul-Isolation** — Schule wird serverseitig aus `classCode` abgeleitet (`getSchool()`), nie vom Client
+- **Schul-Isolation** — Schule wird serverseitig (PHP) aus `classCode` abgeleitet (`get_school()`), nie vom Client
 
 ---
 
@@ -253,8 +255,8 @@ Die App aktualisiert WM-Ergebnisse automatisch — der Lehrer muss nichts manuel
 | POST | `/api/admin/advance` | KO-Gewinner manuell vorrücken (Elfmeter) | Admin |
 | GET/POST | `/api/admin` | Schüler auflisten/anlegen | Admin, Lehrer |
 | POST | `/api/admin/reset-code` | Login-Code suchen/zurücksetzen | Admin |
-| GET | `/api/admin/qr` | QR-Code-PNG generieren | Admin |
 | GET | `/api/admin/klassenliste` | Klassenliste (Lehrer: eigene Klasse) | Admin, Lehrer |
+| GET | `/api/admin/teachers` | Lehrkräfte-Liste (für Lehrerhandbuch) | Admin, Lehrer |
 | GET | `/api/sync` | Auto-Sync-Status + Sync auslösen | Alle |
 | POST | `/api/sync?force=1` | Sofort-Sync erzwingen | Admin, Lehrer |
 
@@ -262,74 +264,64 @@ Die App aktualisiert WM-Ergebnisse automatisch — der Lehrer muss nichts manuel
 
 ## Deployment
 
-### Lokal (empfohlen für Schulbetrieb)
-
-Daten verlassen das Schulnetz nicht — DSGVO-konform.
+Die App läuft produktiv unter **https://wm.albertocabrera.de** (Plesk, Apache + PHP 8.1).
+EU-Server, Daten bleiben auf dem eigenen Hosting — DSGVO-konform.
 
 ```bash
-cd app
-npm install
-cp .env.example .env       # JWT_SECRET setzen
-npx prisma db push
-npm run db:seed
-npm run dev                # Entwicklung: http://localhost:3000
+# 1. Frontend bauen + nach httpdocs/ kopieren
+app/deploy.sh
+
+# 2. Datenbank (nur beim ersten Mal oder zum Zurücksetzen)
+php api/cli/init.php           # weigert sich, eine befüllte DB zu überschreiben
+php api/cli/init.php --force   # kompletter Reset (löscht alle Tipps!)
 ```
 
-Alle Schüler im selben WLAN erreichbar unter: `http://<IP-Schulrechner>:3000`
-
-### Vercel (optional, nur bei externem Zugriff)
-
-- Region auf **Frankfurt (`fra1`)** setzen (EU-Server)
-- [Data Processing Agreement mit Vercel](https://vercel.com/legal/dpa) abschließen (kostenlos)
-- Umgebungsvariablen im Vercel-Dashboard hinterlegen
-
-```json
-{
-  "buildCommand": "cd app && npm install && npm run build",
-  "outputDirectory": "app/.next",
-  "framework": "nextjs"
-}
-```
+Routing übernimmt `.htaccess`: `/api/*` → PHP-Router (`api/index.php`),
+alles andere wird als statische Datei ausgeliefert. Quellcode (`app/`),
+Repo-Dateien und `.git` sind per 403 gesperrt.
 
 ---
 
-## Umgebungsvariablen
+## Konfiguration
 
-```env
-# Pflicht — App wirft Fehler beim Start wenn nicht gesetzt
-JWT_SECRET="min-32-zeichen-langer-zufallsstring"   # openssl rand -hex 32
+Liegt in `/var/www/vhosts/wm.albertocabrera.de/wm-data/config.php`
+(außerhalb des Document-Root, nicht im Repo):
 
-# Prisma (Standard: lokale SQLite-Datei)
-DATABASE_URL="file:./dev.db"
+```php
+return [
+    'JWT_SECRET' => 'min-32-zeichen-langer-zufallsstring',   // openssl rand -hex 32
 
-# Optional — aktiviert automatischen WM-Ergebnis-Sync
-FOOTBALL_API_KEY="schluessel-von-football-data.org"
+    // Optional — aktiviert automatischen WM-Ergebnis-Sync
+    'FOOTBALL_API_KEY' => 'schluessel-von-football-data.org',
+];
 ```
+
+Die SQLite-Datenbank liegt daneben: `wm-data/wm.sqlite`.
 
 ---
 
 ## Projektstruktur
 
 ```
-WM_2026/
-├── app/
-│   ├── prisma/
-│   │   ├── schema.prisma       Datenbankschema (SQLite)
-│   │   └── seed.ts             Alle Nutzer + Spielplan anlegen
-│   ├── public/
-│   │   └── fonts/              Self-hosted Webfonts (DSGVO)
+httpdocs/                       Repo-Root = Document-Root
+├── index.html, _next/, …       Statischer Next.js-Export (Build-Artefakte)
+├── .htaccess                   Routing + Schutz von Quellcode/Repo-Dateien
+├── api/                        PHP-Backend
+│   ├── index.php               Router (/api/* → Route-Handler)
+│   ├── .htaccess               Rewrite auf den Router
+│   ├── lib/                    DB, JWT/Session, Punkte, Klassen, Bracket, football-data
+│   ├── routes/                 Ein Handler-Modul pro Endpunkt-Gruppe
+│   └── cli/init.php            Schema + Seed (Nutzer, 48 Teams, 104 Spiele)
+├── app/                        Frontend-Quellcode (Next.js)
+│   ├── deploy.sh               Build + Deploy nach httpdocs/
+│   ├── public/fonts/           Self-hosted Webfonts (DSGVO)
 │   └── src/
-│       ├── app/                Next.js App Router
-│       │   ├── api/            REST-Endpunkte
-│       │   ├── admin/          Admin-Panel
-│       │   ├── dashboard/      Schüler-Dashboard
-│       │   ├── leaderboard/    Rangliste
-│       │   ├── klassenliste/   Druckbare Klassenliste
-│       │   ├── datenschutz/    DSGVO-Erklärung
-│       │   ├── login/          3-Schritt-Login (Schule → Rolle → Code)
-│       │   └── page.tsx        Landingpage
-│       ├── components/         Wiederverwendbare UI-Komponenten
-│       └── lib/                Auth, Prisma, Klassen, Punkte-Logik
+│       ├── app/                App Router (alle Seiten client-seitig)
+│       ├── components/         AuthGuard, ThemeProvider, QuickLogin, …
+│       └── lib/                Klassen- und Punkte-Logik (client)
 └── preview/                    HTML-Prototyp (ohne Server)
-LEHRER_CHECKLISTE.md            Checkliste für Lehrkräfte (ausdrucken)
+
+../wm-data/                     Außerhalb des Document-Root
+├── config.php                  JWT_SECRET, FOOTBALL_API_KEY
+└── wm.sqlite                   SQLite-Datenbank
 ```

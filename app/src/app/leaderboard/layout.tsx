@@ -1,8 +1,7 @@
-import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+'use client'
 
-export default async function LeaderboardLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession()
-  if (!session) redirect('/login')
-  return <>{children}</>
+import { AuthGuard } from '@/components/AuthGuard'
+
+export default function LeaderboardLayout({ children }: { children: React.ReactNode }) {
+  return <AuthGuard>{children}</AuthGuard>
 }

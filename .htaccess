@@ -1,0 +1,21 @@
+# WM 2026 Tipp-Spiel — frontend estático (Next.js export) + backend PHP en /api
+RewriteEngine On
+
+# Código fuente y archivos del repo: nunca servir
+RewriteRule ^app/ - [F]
+RewriteRule ^\.git - [F]
+RewriteRule ^(README\.md|PLAN\.md|LEHRER_CHECKLISTE\.md|vercel\.json)$ - [F]
+
+ErrorDocument 404 /404.html
+
+# Cache: assets con hash de Next pueden cachearse fuerte; HTML no.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+AddDefaultCharset utf-8

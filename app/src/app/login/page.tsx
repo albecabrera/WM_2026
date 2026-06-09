@@ -64,7 +64,7 @@ export default function LoginPage() {
   ) : null
 
   const BackBtn = ({ to, label = '← Zurück' }: { to: Step; label?: string }) => (
-    <button onClick={() => { setStep(to); setCode(''); setError(''); setSchoolError('') }}
+    <button onClick={() => { setStep(to); setCode(''); setError('') }}
       style={{ background: 'none', border: 'none', color: 'var(--c-muted)', cursor: 'pointer', fontSize: '0.82rem', marginBottom: '1.25rem', padding: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
       {label}
     </button>

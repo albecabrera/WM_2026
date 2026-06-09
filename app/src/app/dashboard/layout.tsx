@@ -1,11 +1,12 @@
-import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+'use client'
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession()
-  if (!session) redirect('/login')
-  // Teachers compete too, so they use the player dashboard; only admins are
-  // routed straight to the admin panel.
-  if (session.role === 'ADMIN') redirect('/admin')
-  return <>{children}</>
+import { AuthGuard } from '@/components/AuthGuard'
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  // Lehrer también juegan y usan el dashboard; los admins van directo al panel.
+  return (
+    <AuthGuard roles={['STUDENT', 'TEACHER']} fallback="/admin">
+      {children}
+    </AuthGuard>
+  )
 }

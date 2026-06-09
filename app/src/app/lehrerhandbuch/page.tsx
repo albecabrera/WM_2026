@@ -1,24 +1,40 @@
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getSession, isTeacherOrAdmin } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { getSchool, ALL_CLASSES } from '@/lib/classes'
 import { PrintButton } from '../klassenliste/PrintButton'
 
-export default async function LehrerhandbuchPage() {
-  const session = await getSession()
-  if (!session) redirect('/login')
-  if (!isTeacherOrAdmin(session)) redirect('/dashboard')
+interface Teacher {
+  name: string
+  classCode: string
+  loginCode: string
+}
+
+export default function LehrerhandbuchPage() {
+  const router = useRouter()
+  const [session, setSession] = useState<{ role: string; classCode: string } | null>(null)
+  const [allTeachers, setAllTeachers] = useState<Teacher[]>([])
+
+  useEffect(() => {
+    fetch('/api/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (!me) return router.replace('/login')
+        if (me.role !== 'ADMIN' && me.role !== 'TEACHER') return router.replace('/dashboard')
+        setSession(me)
+        return fetch('/api/admin/teachers')
+          .then((r) => (r.ok ? r.json() : []))
+          .then(setAllTeachers)
+      })
+      .catch(() => router.replace('/login'))
+  }, [router])
+
+  if (!session) return null
 
   const isAdmin = session.role === 'ADMIN'
   const mySchool = isAdmin ? null : getSchool(session.classCode)
-
-  // Alle Lehrkräfte aus der DB holen
-  const allTeachers = await prisma.user.findMany({
-    where: { role: 'TEACHER' },
-    select: { name: true, classCode: true, loginCode: true },
-    orderBy: [{ classCode: 'asc' }, { name: 'asc' }],
-  })
 
   const today = new Date().toLocaleDateString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric',

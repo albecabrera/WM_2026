@@ -1,0 +1,7 @@
+# Backend PHP — todas las peticiones pasan por el router.
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule . index.php [L]
+
+# Nunca servir código de lib/, routes/ ni cli/ directamente.
+RewriteRule ^(lib|routes|cli)/ - [F]

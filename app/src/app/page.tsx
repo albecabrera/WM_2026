@@ -1,16 +1,26 @@
-import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
 import { QuickLogin } from '@/components/QuickLogin'
 
-export default async function LandingPage() {
-  const session = await getSession()
-  if (session) {
-    if (session.role === 'ADMIN') redirect('/admin')
-    redirect('/dashboard')
-  }
+export default function LandingPage() {
+  const router = useRouter()
+
+  // Sesión activa → directo al dashboard/panel (la cookie es httpOnly,
+  // así que se comprueba contra /api/me).
+  useEffect(() => {
+    fetch('/api/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((me) => {
+        if (me) router.replace(me.role === 'ADMIN' ? '/admin' : '/dashboard')
+      })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <>

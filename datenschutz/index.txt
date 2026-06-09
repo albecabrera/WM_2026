@@ -1,0 +1,55 @@
+3:I[2972,["972","static/chunks/972-930366e3e4c43f1f.js","775","static/chunks/app/datenschutz/page-059f91bb57a99a25.js"],""]
+4:I[4707,[],""]
+5:I[6423,[],""]
+2:T5a3,
+        .ds-wrap {
+          min-height: 100vh;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 6rem 1.5rem 3rem;
+        }
+        .ds-card {
+          position: relative;
+          z-index: 2;
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          border-radius: 16px;
+          padding: 2.5rem;
+          max-width: 680px;
+          width: 100%;
+        }
+        .ds-section { margin-bottom: 2rem; }
+        .ds-section h2 {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--c-gold);
+          margin-bottom: 0.5rem;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+        .ds-section p, .ds-section li {
+          font-size: 0.88rem;
+          color: var(--c-muted);
+          line-height: 1.65;
+        }
+        .ds-section ul { padding-left: 1.25rem; }
+        .ds-section li { margin-bottom: 0.25rem; }
+        .ds-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(34,197,94,0.1);
+          border: 1px solid rgba(34,197,94,0.25);
+          border-radius: 100px;
+          padding: 0.3rem 0.8rem;
+          font-size: 0.75rem;
+          color: #22c55e;
+          margin-right: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+      0:["Rhsm6JFi2w877BU3_WDno",[[["",{"children":["datenschutz",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",{"children":["datenschutz",{"children":["__PAGE__",{},[["$L1",[["$","style",null,{"children":"$2"}],[["$","div",null,{"className":"page-bg-img","style":{"backgroundImage":"url(/bg-stadium.jpg)"}}],["$","div",null,{"className":"page-bg-overlay","style":"$undefined"}]],["$","div",null,{"className":"ds-wrap","children":["$","div",null,{"className":"ds-card","children":[["$","div",null,{"style":{"marginBottom":"2rem"},"children":[["$","h1",null,{"style":{"fontFamily":"Bebas Neue, sans-serif","fontSize":"2.5rem","color":"var(--c-gold)","lineHeight":1,"marginBottom":"0.4rem"},"children":"🔒 Datenschutz"}],["$","p",null,{"style":{"fontSize":"0.82rem","color":"var(--c-hint)"},"children":"WM 2026 Tipp-Spiel · Elisabeth-Selbert-Gesamtschule Bonn"}]]}],["$","div",null,{"style":{"display":"flex","flexWrap":"wrap","marginBottom":"2rem"},"children":[["$","span",null,{"className":"ds-badge","children":"✓ DSGVO-konform"}],["$","span",null,{"className":"ds-badge","children":"✓ Keine Tracker"}],["$","span",null,{"className":"ds-badge","children":"✓ Keine Werbung"}],["$","span",null,{"className":"ds-badge","children":"✓ Daten bleiben lokal"}]]}],["$","div",null,{"className":"ds-section","children":[["$","h2",null,{"children":"1. Phantasienamen statt Klarnamen"}],["$","p",null,{"children":["In dieser App werden ",["$","strong",null,{"children":"ausschließlich Phantasienamen"}]," verwendet (z. B. „Rasenrakete\", „Ballblitz\"). Es werden keine echten Namen, E-Mail-Adressen oder sonstigen personenbezogenen Daten gespeichert."]}],["$","p",null,{"style":{"marginTop":"0.5rem"},"children":["Die Zuordnung Code ↔ Person verbleibt ",["$","strong",null,{"children":"offline beim Lehrer"}],"und ist nicht Teil der App."]}]]}],["$","div",null,{"className":"ds-section","children":[["$","h2",null,{"children":"2. Daten verlassen das Gerät nicht"}],["$","p",null,{"children":["Alle Tipps, Codes und Ergebnisse werden in einer ",["$","strong",null,{"children":"lokalen Datenbank (SQLite)"}]," auf dem Schulrechner gespeichert. Es findet keine Übertragung an Dritte statt."]}],["$","ul",null,{"children":[["$","li",null,{"children":"Keine Cloud-Datenbank"}],["$","li",null,{"children":"Kein externer Authentifizierungsdienst"}],["$","li",null,{"children":"Login via schulinterner Code — kein Passwort, keine E-Mail"}]]}]]}],["$","div",null,{"className":"ds-section","children":[["$","h2",null,{"children":"3. Session-Cookie (technisch notwendig)"}],["$","p",null,{"children":["Nach dem Login wird ein ",["$","strong",null,{"children":"technisch notwendiges Session-Cookie"}],"gesetzt (",["$","code",null,{"children":"session"}],"). Es enthält ausschließlich technische Anmeldedaten — Phantasiename, Klasse, Rolle und den Login-Code. Keine echten Namen, keine personenbezogenen Daten. Es handelt sich um kein Tracking-Cookie — keine Drittanbieter haben Zugriff (",["$","code",null,{"children":"httpOnly"}],")."]}]]}],["$","div",null,{"className":"ds-section","children":[["$","h2",null,{"children":"4. Automatische Ergebnisabfrage (optional)"}],["$","p",null,{"children":["Wenn vom Administrator aktiviert, ruft der ",["$","strong",null,{"children":"Server"}]," (nicht der Browser) die WM-Ergebnisse von ",["$","a",null,{"href":"https://www.football-data.org","target":"_blank","rel":"noopener noreferrer","style":{"color":"var(--c-gold)"},"children":"football-data.org"}]," ab. Dabei werden ",["$","strong",null,{"children":"keine Schülerdaten"}]," übertragen — nur eine Anfrage nach öffentlichen Spielergebnissen (Server-zu-Server)."]}]]}],["$","div",null,{"className":"ds-section","children":[["$","h2",null,{"children":"5. Keine Tracker · Keine Werbung · Keine Analytics"}],["$","p",null,{"children":"Es sind keinerlei Drittanbieter-Skripte eingebunden: kein Google Analytics, kein Meta Pixel, keine Werbenetze. Die App läuft im Browser ohne externe JavaScript-Bibliotheken."}],["$","p",null,{"style":{"marginTop":"0.5rem"},"children":["Auch die Schriftarten werden ",["$","strong",null,{"children":"lokal vom Schulserver"}]," ausgeliefert (selbst gehostet) — es findet ",["$","strong",null,{"children":"keine Verbindung zu Google Fonts"}],"oder anderen CDNs statt. Beim Aufruf der App wird keine IP-Adresse an Dritte übertragen."]}]]}],["$","div",null,{"style":{"marginTop":"2rem","padding":"1rem","background":"rgba(59,130,246,0.07)","border":"1px solid rgba(59,130,246,0.18)","borderRadius":"8px","fontSize":"0.8rem","color":"var(--c-hint)"},"children":[["$","strong",null,{"style":{"color":"var(--c-muted)"},"children":"Verantwortlich:"}]," ","Elisabeth-Selbert-Gesamtschule Bonn · Klassen 5 & 6 · WM 2026 Tipp-Spiel"]}],["$","div",null,{"style":{"marginTop":"1.5rem","display":"flex","gap":"1.5rem","justifyContent":"center","flexWrap":"wrap"},"children":[["$","$L3",null,{"href":"/","style":{"color":"var(--c-hint)","fontSize":"0.85rem","textDecoration":"none"},"children":"← Startseite"}],["$","$L3",null,{"href":"/dashboard","style":{"color":"var(--c-gold)","fontSize":"0.85rem","textDecoration":"none","fontWeight":600},"children":"🏠 Dashboard →"}]]}]]}]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","datenschutz","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/131913879d2fe967.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"de","children":["$","body",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){var t=localStorage.getItem('wm2026_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();"}}],["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]],null],null],["$L6",null]]]]
+6:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"WM 2026 Tipp-Spiel | BBG & ESG Bonn"}],["$","meta","3",{"name":"description","content":"Das offizielle WM 2026 Tipp-Spiel — BBG & Elisabeth-Selbert-Gesamtschule Bonn"}]]
+1:null

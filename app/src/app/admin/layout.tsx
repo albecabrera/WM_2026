@@ -1,10 +1,7 @@
-import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+'use client'
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession()
-  if (!session || (session.role !== 'ADMIN' && session.role !== 'TEACHER')) {
-    redirect('/login')
-  }
-  return <>{children}</>
+import { AuthGuard } from '@/components/AuthGuard'
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return <AuthGuard roles={['ADMIN', 'TEACHER']}>{children}</AuthGuard>
 }

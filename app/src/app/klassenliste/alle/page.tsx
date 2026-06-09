@@ -1,39 +1,48 @@
-import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { ALL_CLASSES } from '@/lib/classes'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { getSchool } from '@/lib/classes'
 import { PrintButton } from '../PrintButton'
 
-export default async function AlleKlassenPage() {
-  const session = await getSession()
-  if (!session || session.role !== 'ADMIN') redirect('/login')
+interface ClassEntry {
+  code: string
+  label: string
+  teachers: { name: string; loginCode: string }[]
+  students: { name: string; loginCode: string }[]
+}
 
-  const users = await prisma.user.findMany({
-    where: { role: { in: ['STUDENT', 'TEACHER'] } },
-    select: { name: true, classCode: true, loginCode: true, role: true },
-    orderBy: [{ classCode: 'asc' }, { role: 'asc' }, { name: 'asc' }],
-  })
+export default function AlleKlassenPage() {
+  const router = useRouter()
+  const [session, setSession] = useState<{ role: string } | null>(null)
+  const [allClasses, setAllClasses] = useState<ClassEntry[]>([])
 
-  const bbgCodes = ['gelb', 'schwarz', 'gruen', 'blau', 'rot', 'weiss']
-  const esgCodes = ['k1', 'k2', 'k3', 'k4', 'k5', 'k6']
+  useEffect(() => {
+    fetch('/api/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (!me || me.role !== 'ADMIN') return router.replace('/login')
+        setSession(me)
+        return fetch('/api/admin/klassenliste')
+          .then((r) => (r.ok ? r.json() : []))
+          .then((data: any[]) =>
+            setAllClasses(
+              data
+                .map((c) => ({ code: c.code, label: c.name, teachers: c.teachers, students: c.students }))
+                .filter((c) => c.students.length > 0 || c.teachers.length > 0)
+            )
+          )
+      })
+      .catch(() => router.replace('/login'))
+  }, [router])
 
-  const buildClasses = (codes: string[]) =>
-    codes.map((code) => {
-      const label = ALL_CLASSES.find((c) => c.code === code)?.label ?? code
-      const cu = users.filter((u) => u.classCode === code)
-      return {
-        code,
-        label,
-        teachers: cu.filter((u) => u.role === 'TEACHER'),
-        students: cu.filter((u) => u.role === 'STUDENT'),
-      }
-    }).filter((c) => c.students.length > 0 || c.teachers.length > 0)
-
-  const bbg = buildClasses(bbgCodes)
-  const esg = buildClasses(esgCodes)
+  const bbg = allClasses.filter((c) => getSchool(c.code) === 'bbg')
+  const esg = allClasses.filter((c) => getSchool(c.code) === 'esg')
   const today = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
-  const ClassBlock = ({ cls }: { cls: ReturnType<typeof buildClasses>[number] }) => (
+  if (!session) return null
+
+  const ClassBlock = ({ cls }: { cls: ClassEntry }) => (
     <div className="kl-class">
       <div className="kl-class-title">
         {cls.label.startsWith('Klasse') ? cls.label : `Klasse ${cls.label}`}
