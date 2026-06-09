@@ -194,6 +194,11 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
           </div>
           <div className="no-print" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <PrintButton />
+            {session.role === 'ADMIN' && (
+              <Link href="/klassenliste/alle" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.5rem 1.1rem', textDecoration: 'none', background: 'var(--c-blue)' }}>
+                🖨 Alle Klassen (BBG + ESG)
+              </Link>
+            )}
             <Link href="/dashboard" className="btn btn-ghost" style={{ fontSize: '0.85rem', padding: '0.5rem 1rem', textDecoration: 'none' }}>
               🏠 Dashboard
             </Link>
