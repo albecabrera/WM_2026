@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
-import { classLabel, getClassCodesForSchool } from '@/lib/classes'
+import { classLabel, ALL_CLASS_CODES } from '@/lib/classes'
 import QRCode from 'qrcode'
 
 interface Match {
@@ -50,7 +50,6 @@ export default function AdminPage() {
   const [penaltyPrompt, setPenaltyPrompt] = useState<{ matchId: string; homeTeam: Match['homeTeam']; awayTeam: Match['awayTeam'] } | null>(null)
   const [advancingPenalty, setAdvancingPenalty] = useState(false)
   const [sync, setSync] = useState<{ lastSyncAt: string | null; lastStatus: string | null; noKey: boolean } | null>(null)
-  const [adminSchool, setAdminSchool] = useState<'bbg' | 'esg'>('bbg')
   const [qrUrls, setQrUrls] = useState<Record<string, string>>({})
 
   async function lookupOrResetCode(action: 'lookup' | 'reset' = 'lookup') {
@@ -101,13 +100,12 @@ export default function AdminPage() {
     } else if (tab === 'ko') {
       fetch('/api/admin/ko').then((r) => r.json()).then((d) => { if (Array.isArray(d)) setKoMatches(d) })
     } else if (tab === 'users') {
-      fetch(`/api/admin?school=${adminSchool}`).then((r) => r.json()).then((d) => { if (Array.isArray(d)) setUsers(d) })
+      fetch('/api/admin').then((r) => r.json()).then((d) => { if (Array.isArray(d)) setUsers(d) })
     } else if (tab === 'leaderboard') {
-      const base = `/api/leaderboard?school=${adminSchool}`
-      const url = filterClass !== 'all' ? `${base}&class=${filterClass}` : base
+      const url = filterClass !== 'all' ? `/api/leaderboard?class=${filterClass}` : '/api/leaderboard'
       fetch(url).then((r) => r.json()).then((d) => { if (Array.isArray(d)) setLeaderboard(d) })
     }
-  }, [tab, filterClass, adminSchool])
+  }, [tab, filterClass])
 
   useEffect(() => {
     if (users.length === 0) return
@@ -311,19 +309,9 @@ export default function AdminPage() {
       <div className="container relative" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0 }}>Admin-Panel</h2>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {(['bbg', 'esg'] as const).map((s) => (
-              <button key={s} onClick={() => { setAdminSchool(s); setFilterClass('all'); setNewClass(s === 'bbg' ? 'gelb' : 'k1') }} style={{
-                padding: '0.3rem 0.9rem', borderRadius: '6px', border: '1px solid',
-                borderColor: adminSchool === s ? (s === 'bbg' ? '#3b82f6' : 'var(--c-gold)') : 'var(--c-border)',
-                background: adminSchool === s ? (s === 'bbg' ? 'rgba(59,130,246,0.12)' : 'rgba(245,200,66,0.12)') : 'transparent',
-                color: adminSchool === s ? (s === 'bbg' ? '#3b82f6' : 'var(--c-gold)') : 'var(--c-muted)',
-                cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.85rem', fontWeight: 700,
-              }}>
-                {s.toUpperCase()}
-              </button>
-            ))}
-          </div>
+          <span style={{ fontSize: '0.78rem', color: 'var(--c-muted)', padding: '0.25rem 0.7rem', borderRadius: '6px', border: '1px solid var(--c-border)' }}>
+            BBG Gelb &amp; ESG K4
+          </span>
         </div>
 
         {/* Estado del auto-sync por internet */}
@@ -531,7 +519,7 @@ export default function AdminPage() {
                 Öffnet die Feier-Seite mit dem Tipp-Spiel-Gewinner (Schüler mit meisten Punkten).
               </p>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                {['all', ...getClassCodesForSchool(adminSchool)].map((c) => (
+                {['all', ...ALL_CLASS_CODES].map((c) => (
                   <button key={c} onClick={() => setFilterClass(c)} style={{
                     ...tabStyle(c),
                     borderColor: filterClass === c ? 'var(--c-gold)' : 'var(--c-border)',
@@ -614,7 +602,7 @@ export default function AdminPage() {
                 <div style={{ flex: '0 0 120px' }}>
                   <label style={{ fontSize: '0.8rem', color: 'var(--c-muted)', display: 'block', marginBottom: '4px' }}>Klasse</label>
                   <select className="input" value={newClass} onChange={(e) => setNewClass(e.target.value)}>
-                    {getClassCodesForSchool(adminSchool).map((c) => <option key={c} value={c}>{classLabel(c)}</option>)}
+                    {ALL_CLASS_CODES.map((c) => <option key={c} value={c}>{classLabel(c)}</option>)}
                   </select>
                 </div>
                 <button className="btn btn-primary" onClick={createUser}>Anlegen</button>
@@ -665,7 +653,7 @@ export default function AdminPage() {
         {tab === 'leaderboard' && (
           <div>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              {['all', ...getClassCodesForSchool(adminSchool)].map((c) => (
+              {['all', ...ALL_CLASS_CODES].map((c) => (
                 <button key={c} onClick={() => setFilterClass(c)} style={{
                   ...tabStyle(c),
                   borderColor: filterClass === c ? 'var(--c-gold)' : 'var(--c-border)',

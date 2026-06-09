@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
-import { classLabel, getSchool, getClassCodesForSchool } from '@/lib/classes'
+import { classLabel, ALL_CLASS_CODES } from '@/lib/classes'
 
 interface LeaderboardEntry {
   id: string
@@ -30,28 +30,17 @@ export default function LeaderboardPage() {
   const [groups, setGroups] = useState<GroupStanding[]>([])
   const [view, setView] = useState<'individual' | 'groups'>('individual')
   const [filterClass, setFilterClass] = useState<string>('all')
-  const [mySchool, setMySchool] = useState<'bbg' | 'esg'>('bbg')
 
   useEffect(() => {
-    fetch('/api/me').then(r => r.json()).then(d => {
-      if (d?.classCode) {
-        const s = getSchool(d.classCode)
-        if (s) setMySchool(s)
-      }
-    }).catch(() => {})
+    const url = filterClass !== 'all' ? `/api/leaderboard?class=${filterClass}` : '/api/leaderboard'
+    fetch(url).then(r => r.json()).then(d => { if (Array.isArray(d)) setData(d) })
+  }, [filterClass])
+
+  useEffect(() => {
+    fetch('/api/leaderboard/groups').then(r => r.json()).then(d => { if (Array.isArray(d)) setGroups(d) })
   }, [])
 
-  useEffect(() => {
-    const base = `/api/leaderboard?school=${mySchool}`
-    const url = filterClass !== 'all' ? `${base}&class=${filterClass}` : base
-    fetch(url).then(r => r.json()).then(d => { if (Array.isArray(d)) setData(d) })
-  }, [filterClass, mySchool])
-
-  useEffect(() => {
-    fetch(`/api/leaderboard/groups?school=${mySchool}`).then(r => r.json()).then(d => { if (Array.isArray(d)) setGroups(d) })
-  }, [mySchool])
-
-  const classes = ['all', ...getClassCodesForSchool(mySchool)]
+  const classes = ['all', ...ALL_CLASS_CODES]
 
   return (
     <>

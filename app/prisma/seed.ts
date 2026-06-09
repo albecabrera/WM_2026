@@ -105,63 +105,13 @@ async function main() {
   }
   console.log(`Created ${teams.length} teams`)
 
-  // ── BBG — Farb-Klassen ──────────────────────────────────────────────────────
-  const bbgClasses = [
-    { code: 'gelb',    name: 'Gelb'    },
-    { code: 'schwarz', name: 'Schwarz' },
-    { code: 'gruen',   name: 'Grün'    },
-    { code: 'blau',    name: 'Blau'    },
-    { code: 'rot',     name: 'Rot'     },
-    { code: 'weiss',   name: 'Weiß'    },
+  // ── Aktive Klassen: BBG Gelb + ESG K4 ─────────────────────────────────────
+  const activeClasses = [
+    { code: 'gelb', name: 'Gelb'    },
+    { code: 'k4',   name: 'Klasse 4' },
   ]
-  // ── ESG — Klasse 1–6 (5. Jahrgang) ─────────────────────────────────────────
-  const esgClasses = [
-    { code: 'k1', name: 'Klasse 1' },
-    { code: 'k2', name: 'Klasse 2' },
-    { code: 'k3', name: 'Klasse 3' },
-    { code: 'k4', name: 'Klasse 4' },
-    { code: 'k5', name: 'Klasse 5' },
-    { code: 'k6', name: 'Klasse 6' },
-  ]
-  const classes = [...bbgClasses, ...esgClasses]
-  await prisma.class.createMany({ data: classes })
+  await prisma.class.createMany({ data: activeClasses })
 
-  // ── BBG — 30 student fantasy names per color class ──────────────────────────
-  const studentsByClass: Record<string, string[]> = {
-    gelb: ['Rasenrakete','Ballblitz','Netzninja','Elferzauber','Torwirbel','Flankenfuchs','Ballkomet','Netzphantom','Dribbeldynamo','Torsturm','Rasenregenbogen','Elferkobold','Flankenflummi','Ballvulkan','Netzgecko','Tornebel','Rasenotter','Ballzauber','Flankenstern','Netzfunke','Torfeder','Rasenmeteor','Ballorkan','Elferblitz','Netzkomet','Flankenzauber','Torphantom','Dribbeldrache','Rasensturm','Balladler'],
-    schwarz: ['Netzfalke','Elferstern','Torvulkan','Flankenregen','Ballwirbel','Netzkobold','Rasenfuchs','Torfunke','Ballpanther','Elferkomet','Netzregenbogen','Flankenblitz','Torzauber','Dribbelstern','Rasengepard','Balltornado','Netzsturm','Elfervulkan','Toradler','Flankenmeteor','Ballphantom','Netzotter','Rasenkomet','Torflummi','Elferfunke','Ballrakete','Netzzauber','Flankenpanther','Torkobold','Dribbelkomet'],
-    gruen: ['Rasenblitz','Ballstern','Netzfeder','Elferregen','Torfuchs','Flankenkomet','Ballgecko','Netzmeteor','Rasenzauber','Tororkan','Elferadler','Ballotter','Netzwirbel','Flankenfunke','Torregenbogen','Dribbelfalke','Rasenphantom','Ballregen','Netzpanther','Elfermeteor','Torblitz','Flankenkobold','Ballfeder','Netzsturmvogel','Rasenfunke','Torstern','Elferphantom','Ballzauberer','Netzfuchs','Flankenwirbel'],
-    blau: ['Torgepard','Rasenvulkan','Ballkompass','Netzrakete','Elferfeder','Torregen','Flankenadler','Ballmeteor','Netzstern','Rasenkobold','Torpanther','Elferorkan','Ballphantasie','Netzblitz','Flankenfeder','Torotter','Rasenadler','Ballfuchs','Netzvulkan','Elferwirbel','Torflitzer','Flankenzauberer','Ballregenbogen','Netzkompass','Rasenmeteorblitz','Torfalke','Elfersternschnuppe','Ballsturm','Netzadler','Flankenphantom'],
-    rot: ['Torrakete','Rasenfeder','Ballfunke','Netzorkan','Elferregenbogen','Torzauberer','Flankengepard','Ballkobold','Netzfalke','Rasenstern','Torvogel','Elferfuchs','Ballkometenschweif','Netzmeteorblitz','Flankenregenbogen','Torotterblitz','Rasenpanther','Ballorkanblitz','Netzphantasie','Elferzauberer','Torregenvogel','Flankenkompass','Ballvulkanblitz','Netzflummi','Rasenzauberer','Torfunkenflug','Elfergepard','Balladlerflug','Netzregen','Flankensturm'],
-    weiss: ['Torwirbelwind','Rasenmeteorflug','Ballsternschnuppe','Netzkometenschweif','Elferfunkenflug','Torregenstern','Flankenvulkan','Ballpantherpfote','Netzadlerschwinge','Rasenfalkenflug','Torzauberstern','Elferwirbelwind','Ballfuchsspur','Netzotterspur','Flankenregenflug','Torblitzstern','Rasenkometenschweif','Ballmeteorflug','Netzvulkanflug','Elferphantasie','Torsturmwind','Flankenfunkenflug','Ballregenstern','Netzzauberflug','Rasenadlerspur','Torfalkenflug','Elferregenwind','Ballkoboldflug','Netzsternschnuppe','Flankenotter'],
-  }
-
-  // ── BBG — 2 teacher fantasy names per color class ───────────────────────────
-  const bbgTeacherNames = ['Torpantherspur','Rasenzauberwind','Ballgepardspur','Netzfederflug','Elferkompass','Torregenflug','Flankenmeteorflug','Ballvulkanwind','Netzfuchsspur','Rasenphantasie','Pokalwirbel','Fanfarenblitz']
-  const bbgTeachersByClass: Record<string, string[]> = {}
-  bbgClasses.forEach((c, i) => { bbgTeachersByClass[c.code] = bbgTeacherNames.slice(i * 2, i * 2 + 2) })
-
-  // ── ESG — 30 shared student names (loginCode = name-k1 … name-k6, unique) ──
-  const esgStudentNames = [
-    'Sturmheld','Torjager','Spielmagier','Laufstar','Passmeister',
-    'Schusszauber','Dribbelmacher','Raumdeuter','Vollstrecker','Spielmacher',
-    'Flankenheld','Abwehrheld','Spielfeldstar','Schussmeister','Torwachter',
-    'Elferschuss','Freistossstar','Eckballstar','Konterheld','Steilpasser',
-    'Tempoheld','Kopfballstar','Dribbelheld','Ballwachter','Spielfuhrer',
-    'Torhelfer','Flankenstar','Abwehrzauber','Mittelfeldstar','Schussgeist',
-  ]
-
-  // ── ESG — 2 teachers per class, Klasse 3 has 3 ──────────────────────────────
-  const esgTeachersByClass: Record<string, string[]> = {
-    k1: ['Taktikmeister',   'Spielstratege'],
-    k2: ['Angriffsleiter',  'Defensivheld'],
-    k3: ['Spielvisionaer',  'Offensivcoach', 'Kampfkommando'],
-    k4: ['Defensivgeist',   'Spielleitung'],
-    k5: ['Sturmfuhrer',     'Abwehrstratege'],
-    k6: ['Flankencoach',    'Spielanalyst'],
-  }
-
-  // loginCode = "<name>-<class>" → unique even when a name repeats across classes.
   const code = (name: string, classCode: string) =>
     `${name.toLowerCase()}-${classCode}`
 
@@ -169,44 +119,45 @@ async function main() {
     data: { name: 'Admin', classCode: 'admin', loginCode: 'admin2026', role: 'ADMIN' },
   })
 
-  let studentCount = 0
-  let teacherCount = 0
+  // ── BBG Gelb — 30 Schüler + 2 Lehrer ──────────────────────────────────────
+  const gelbStudents = [
+    'Rasenrakete','Ballblitz','Netzninja','Elferzauber','Torwirbel',
+    'Flankenfuchs','Ballkomet','Netzphantom','Dribbeldynamo','Torsturm',
+    'Rasenregenbogen','Elferkobold','Flankenflummi','Ballvulkan','Netzgecko',
+    'Tornebel','Rasenotter','Ballzauber','Flankenstern','Netzfunke',
+    'Torfeder','Rasenmeteor','Ballorkan','Elferblitz','Netzkomet',
+    'Flankenzauber','Torphantom','Dribbeldrache','Rasensturm','Balladler',
+  ]
+  const gelbTeachers = ['Torpantherspur', 'Rasenzauberwind']
 
-  // BBG users
-  for (const c of bbgClasses) {
-    for (const name of studentsByClass[c.code]) {
-      await prisma.user.create({
-        data: { name, classCode: c.code, loginCode: code(name, c.code), role: 'STUDENT' },
-      })
-      studentCount++
-    }
-    for (const name of bbgTeachersByClass[c.code]) {
-      await prisma.user.create({
-        data: { name, classCode: c.code, loginCode: code(name, c.code), role: 'TEACHER' },
-      })
-      teacherCount++
-    }
+  for (const name of gelbStudents) {
+    await prisma.user.create({ data: { name, classCode: 'gelb', loginCode: code(name, 'gelb'), role: 'STUDENT' } })
+  }
+  for (const name of gelbTeachers) {
+    await prisma.user.create({ data: { name, classCode: 'gelb', loginCode: code(name, 'gelb'), role: 'TEACHER' } })
   }
 
-  // ESG users
-  for (const c of esgClasses) {
-    for (const name of esgStudentNames) {
-      await prisma.user.create({
-        data: { name, classCode: c.code, loginCode: code(name, c.code), role: 'STUDENT' },
-      })
-      studentCount++
-    }
-    for (const name of esgTeachersByClass[c.code]) {
-      await prisma.user.create({
-        data: { name, classCode: c.code, loginCode: code(name, c.code), role: 'TEACHER' },
-      })
-      teacherCount++
-    }
+  // ── ESG K4 — 30 Schüler + 2 Lehrer ────────────────────────────────────────
+  const k4Students = [
+    'Sturmheld','Torjager','Spielmagier','Laufstar','Passmeister',
+    'Schusszauber','Dribbelmacher','Raumdeuter','Vollstrecker','Spielmacher',
+    'Flankenheld','Abwehrheld','Spielfeldstar','Schussmeister','Torwachter',
+    'Elferschuss','Freistossstar','Eckballstar','Konterheld','Steilpasser',
+    'Tempoheld','Kopfballstar','Dribbelheld','Ballwachter','Spielfuhrer',
+    'Torhelfer','Flankenstar','Abwehrzauber','Mittelfeldstar','Schussgeist',
+  ]
+  const k4Teachers = ['Defensivgeist', 'Spielleitung']
+
+  for (const name of k4Students) {
+    await prisma.user.create({ data: { name, classCode: 'k4', loginCode: code(name, 'k4'), role: 'STUDENT' } })
+  }
+  for (const name of k4Teachers) {
+    await prisma.user.create({ data: { name, classCode: 'k4', loginCode: code(name, 'k4'), role: 'TEACHER' } })
   }
 
-  console.log(`Created ${classes.length} classes (${bbgClasses.length} BBG + ${esgClasses.length} ESG), ${studentCount} students, ${teacherCount} teachers`)
+  console.log('Created 2 classes (BBG Gelb + ESG K4), ' + (gelbStudents.length + k4Students.length) + ' students, ' + (gelbTeachers.length + k4Teachers.length) + ' teachers')
 
-  const groupConfig: Record<string, { start: Date; offset: number; venues: [string, string, string] }> = {
+    const groupConfig: Record<string, { start: Date; offset: number; venues: [string, string, string] }> = {
     A: { start: new Date('2026-06-11'), offset: 0,  venues: ['MetLife Stadium', 'SoFi Stadium', 'AT&T Stadium'] },
     B: { start: new Date('2026-06-12'), offset: 6,  venues: ['Levi\'s Stadium', 'Rose Bowl', 'Arrowhead Stadium'] },
     C: { start: new Date('2026-06-12'), offset: 12, venues: ['Hard Rock Stadium', 'NRG Stadium', 'Empower Field'] },

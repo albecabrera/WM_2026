@@ -1,21 +1,11 @@
-// ── BBG — color-named classes ───────────────────────────────────────────────
+// ── BBG — aktive Klassen ─────────────────────────────────────────────────────
 export const BBG_CLASSES = [
-  { code: 'gelb',    label: 'Gelb'    },
-  { code: 'schwarz', label: 'Schwarz' },
-  { code: 'gruen',   label: 'Grün'    },
-  { code: 'blau',    label: 'Blau'    },
-  { code: 'rot',     label: 'Rot'     },
-  { code: 'weiss',   label: 'Weiß'    },
+  { code: 'gelb', label: 'Gelb' },
 ] as const
 
-// ── ESG — numbered classes (5. Jahrgang) ────────────────────────────────────
+// ── ESG — aktive Klassen ─────────────────────────────────────────────────────
 export const ESG_CLASSES = [
-  { code: 'k1', label: 'Klasse 1' },
-  { code: 'k2', label: 'Klasse 2' },
-  { code: 'k3', label: 'Klasse 3' },
   { code: 'k4', label: 'Klasse 4' },
-  { code: 'k5', label: 'Klasse 5' },
-  { code: 'k6', label: 'Klasse 6' },
 ] as const
 
 export const ALL_CLASSES = [...BBG_CLASSES, ...ESG_CLASSES]

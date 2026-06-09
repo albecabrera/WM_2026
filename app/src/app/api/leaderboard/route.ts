@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-import { getSchool, getClassCodesForSchool } from '@/lib/classes'
+import { ALL_CLASS_CODES } from '@/lib/classes'
 
 export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 })
 
-  const userSchool = getSchool(session.classCode)
-  // Admin can pass ?school= to scope; teachers/students auto-scoped to their school
-  const schoolParam = req.nextUrl.searchParams.get('school') as 'bbg' | 'esg' | null
-  const school = userSchool ?? schoolParam ?? 'bbg'
-
-  const schoolCodes = getClassCodesForSchool(school)
   const filterClass = req.nextUrl.searchParams.get('class') || undefined
 
   const users = await prisma.user.findMany({
@@ -20,7 +14,7 @@ export async function GET(req: NextRequest) {
       role: { in: ['STUDENT', 'TEACHER'] },
       classCode: filterClass
         ? { equals: filterClass }
-        : { in: schoolCodes },
+        : { in: ALL_CLASS_CODES },
     },
     include: {
       tips: { where: { points: { not: null } } },

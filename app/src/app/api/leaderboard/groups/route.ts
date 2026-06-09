@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-import { getSchool, getClassesForSchool } from '@/lib/classes'
+import { ALL_CLASS_CODES } from '@/lib/classes'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 })
 
-  const userSchool = getSchool(session.classCode)
-  const schoolParam = req.nextUrl.searchParams.get('school') as 'bbg' | 'esg' | null
-  const school = userSchool ?? schoolParam ?? 'bbg'
-
-  const classes = getClassesForSchool(school)
-  const classCodes = classes.map((c) => c.code)
+  const classCodes = ALL_CLASS_CODES
 
   const users = await prisma.user.findMany({
     where: { role: { in: ['STUDENT', 'TEACHER'] }, classCode: { in: classCodes } },
