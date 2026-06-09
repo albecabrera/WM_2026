@@ -5,6 +5,19 @@ import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
 import { classLabel } from '@/lib/classes'
 
+function deFormat(d: string) {
+  return new Date(d).toLocaleString('de-DE', {
+    timeZone: 'Europe/Berlin',
+    weekday: 'short', day: '2-digit', month: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  })
+}
+function deTime(d: string) {
+  return new Date(d).toLocaleTimeString('de-DE', {
+    timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit',
+  })
+}
+
 function TutorialModal({ onClose }: { onClose: () => void }) {
   const lineStyle = { margin: 0, marginBottom: '0.5rem', lineHeight: 1.5 }
   const steps = [
@@ -213,7 +226,10 @@ export default function DashboardPage() {
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
   const [toast, setToast] = useState('')
   const [showTutorial, setShowTutorial] = useState(false)
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>('default')
+  const [notifDismissed, setNotifDismissed] = useState(false)
   const prevMatchesRef = useRef<Match[]>([])
+  const scheduledRef = useRef<Set<string>>(new Set())
 
   const isWinnerOpen = new Date() < TOURNAMENT_START
 
@@ -284,6 +300,74 @@ export default function DashboardPage() {
     }).catch(() => {})
   }, [fetchMatches, fetchLeaderboard])
 
+  // Read current notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window) setNotifPermission(Notification.permission)
+  }, [])
+
+  // Schedule browser notifications for upcoming untipped matches (2h + 30min before)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return
+    if (Notification.permission !== 'granted') return
+
+    const now = Date.now()
+    const timers: ReturnType<typeof setTimeout>[] = []
+
+    matches.forEach((m) => {
+      if (m.status !== 'UPCOMING') return
+      const tip = tips[m.id]
+      const hasTip = (tip && tip.home !== '' && tip.away !== '') || m.userTip
+      if (hasTip) return
+
+      const kickoff = new Date(m.kickoff).getTime()
+      const label = `${m.homeTeam?.flagEmoji ?? ''} ${m.homeTeam?.shortName} vs. ${m.awayTeam?.shortName} ${m.awayTeam?.flagEmoji ?? ''}`
+      const zeitDE = deTime(m.kickoff)
+
+      const schedule = (msFromNow: number, title: string, body: string) => {
+        const key = `${m.id}-${msFromNow}`
+        if (msFromNow < 0 || scheduledRef.current.has(key)) return
+        scheduledRef.current.add(key)
+        timers.push(setTimeout(() => {
+          new Notification(title, { body, icon: '/favicon.ico', tag: key })
+        }, msFromNow))
+      }
+
+      schedule(kickoff - 2 * 3600_000 - now, '⚽ Tipp nicht vergessen!',
+        `${label} beginnt um ${zeitDE} Uhr (DE-Zeit). Jetzt tippen!`)
+      schedule(kickoff - 30 * 60_000 - now, '⚠️ Letzte Chance!',
+        `${label} beginnt um ${zeitDE} Uhr — nur noch 30 Minuten!`)
+      schedule(kickoff - 5 * 60_000 - now, '🔒 Tipp wird gleich gesperrt!',
+        `${label} — noch 5 Minuten bis zur Sperrung!`)
+    })
+
+    return () => timers.forEach(clearTimeout)
+  }, [matches, tips])
+
+  const now = Date.now()
+  const urgentUntipped = matches
+    .filter((m) => {
+      if (m.status !== 'UPCOMING') return false
+      const tip = tips[m.id]
+      const hasTip = (tip && tip.home !== '' && tip.away !== '') || m.userTip
+      if (hasTip) return false
+      const ms = new Date(m.kickoff).getTime() - now
+      return ms > 0 && ms < 48 * 3600_000
+    })
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+
+  function urgency(kickoff: string): { label: string; color: string; bg: string; border: string } {
+    const ms = new Date(kickoff).getTime() - Date.now()
+    if (ms < 2 * 3600_000)  return { label: 'Jetzt sofort!',    color: '#ef4444', bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.25)' }
+    if (ms < 24 * 3600_000) return { label: 'Heute noch!',      color: '#f97316', bg: 'rgba(249,115,22,0.08)',  border: 'rgba(249,115,22,0.25)' }
+    return                          { label: 'Nicht vergessen!', color: '#f5c842', bg: 'rgba(245,200,66,0.06)',  border: 'rgba(245,200,66,0.2)'  }
+  }
+
+  async function requestNotifPermission() {
+    if (!('Notification' in window)) return
+    const result = await Notification.requestPermission()
+    setNotifPermission(result)
+  }
+
   const groupMatches = matches.filter((m) => m.group === activeGroup)
   const tippedInGroup = groupMatches.filter((m) => {
     const t = tips[m.id]
@@ -327,11 +411,7 @@ export default function DashboardPage() {
     }
   }
 
-  function formatDate(d: string) {
-    return new Date(d).toLocaleDateString('de-DE', {
-      weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-    })
-  }
+  const formatDate = deFormat
 
   const teamsByGroup = teams.reduce<Record<string, Team[]>>((acc, t) => {
     const g = t.group ?? 'Z'
@@ -362,8 +442,41 @@ export default function DashboardPage() {
         zIndex: 90,
         backdropFilter: 'blur(8px)',
       }}>
-        ⏰ <strong>Wichtig:</strong> Gib deinen Tipp mindestens <strong>5 Minuten vor dem Anpfiff</strong> ab — danach ist er gesperrt!
+        ⏰ <strong>Wichtig:</strong> Alle Zeiten in <strong>deutscher Zeit (MEZ/MESZ)</strong> · Tipp bis <strong>5 Min. vor Anpfiff</strong> abgeben — danach gesperrt!
       </div>
+
+      {/* 🔔 Notification permission banner */}
+      {notifPermission === 'default' && !notifDismissed && (
+        <div style={{
+          background: 'rgba(59,130,246,0.08)',
+          borderBottom: '1px solid rgba(59,130,246,0.2)',
+          padding: '0.55rem 1rem',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: '0.75rem', flexWrap: 'wrap',
+          fontSize: '0.82rem', color: 'var(--c-muted)',
+        }}>
+          <span>🔔 <strong>Browser-Benachrichtigungen</strong> aktivieren — damit du Spiele nicht verpasst!</span>
+          <button onClick={requestNotifPermission} style={{
+            background: '#3b82f6', color: '#fff', border: 'none',
+            borderRadius: '6px', padding: '0.3rem 0.8rem',
+            fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+          }}>Aktivieren</button>
+          <button onClick={() => setNotifDismissed(true)} style={{
+            background: 'none', border: 'none', color: 'var(--c-hint)',
+            cursor: 'pointer', fontSize: '0.8rem',
+          }}>Nicht jetzt</button>
+        </div>
+      )}
+      {notifPermission === 'granted' && (
+        <div style={{
+          background: 'rgba(34,197,94,0.06)',
+          borderBottom: '1px solid rgba(34,197,94,0.15)',
+          padding: '0.4rem 1rem',
+          textAlign: 'center', fontSize: '0.75rem', color: 'rgba(34,197,94,0.8)',
+        }}>
+          ✓ Benachrichtigungen aktiv — du wirst 2h und 30 Min. vor deinen Spielen erinnert
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (
@@ -382,6 +495,16 @@ export default function DashboardPage() {
       <nav className="nav">
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px' }}>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--c-gold)' }}>⚽ WM 2026</span>
+          {urgentUntipped.length > 0 && (
+            <span style={{
+              background: '#ef4444', color: '#fff', borderRadius: '100px',
+              fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.55rem',
+              marginLeft: '0.5rem', verticalAlign: 'middle',
+              animation: urgentUntipped.some(m => new Date(m.kickoff).getTime() - Date.now() < 2 * 3600_000) ? 'pulse 1.5s infinite' : 'none',
+            }}>
+              {urgentUntipped.length} offen
+            </span>
+          )}
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <Link href="/dashboard/ko" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>KO-Runden</Link>
             <Link href="/leaderboard" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Rangliste</Link>
@@ -475,6 +598,60 @@ export default function DashboardPage() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* 🚨 Offene Tipps — urgente untipped matches */}
+        {urgentUntipped.length > 0 && (
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h4 style={{ marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1rem' }}>🚨</span>
+              <span>Offene Tipps — nächste 48 Stunden</span>
+              <span style={{
+                background: 'rgba(239,68,68,0.15)', color: '#ef4444',
+                border: '1px solid rgba(239,68,68,0.3)',
+                borderRadius: '100px', padding: '0.1rem 0.55rem',
+                fontSize: '0.75rem', fontWeight: 700, marginLeft: '4px',
+              }}>{urgentUntipped.length}</span>
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {urgentUntipped.map((m) => {
+                const u = urgency(m.kickoff)
+                return (
+                  <div key={m.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '0.65rem 0.85rem',
+                    background: u.bg, border: `1px solid ${u.border}`,
+                    borderRadius: 'var(--r-sm)', flexWrap: 'wrap',
+                  }}>
+                    <span style={{
+                      fontSize: '0.7rem', fontWeight: 700, color: u.color,
+                      background: u.border, borderRadius: '4px',
+                      padding: '0.15rem 0.5rem', whiteSpace: 'nowrap',
+                    }}>{u.label}</span>
+                    <span style={{ fontSize: '0.88rem', flex: 1, minWidth: '140px' }}>
+                      {m.homeTeam?.flagEmoji} {m.homeTeam?.shortName}
+                      <span style={{ color: 'var(--c-muted)', margin: '0 0.35rem' }}>vs.</span>
+                      {m.awayTeam?.shortName} {m.awayTeam?.flagEmoji}
+                    </span>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--c-muted)', whiteSpace: 'nowrap' }}>
+                      {deFormat(m.kickoff)} Uhr
+                    </span>
+                    <button
+                      onClick={() => setActiveGroup(m.group ?? 'A')}
+                      style={{
+                        background: u.color, color: '#0a0e1a',
+                        border: 'none', borderRadius: '6px',
+                        padding: '0.3rem 0.7rem', fontSize: '0.78rem',
+                        fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Gruppe {m.group} tippen →
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
 
