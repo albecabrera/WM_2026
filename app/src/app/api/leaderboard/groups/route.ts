@@ -7,7 +7,9 @@ export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 })
 
-  const filterClass = req.nextUrl.searchParams.get('class') || undefined
+  const paramClass = req.nextUrl.searchParams.get('class') || undefined
+  const filterClass =
+    session.role === 'ADMIN' ? (paramClass ?? undefined) : session.classCode
   const classCodes = filterClass ? [filterClass] : ALL_CLASS_CODES
 
   const users = await prisma.user.findMany({

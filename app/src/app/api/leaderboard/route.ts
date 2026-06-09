@@ -7,7 +7,11 @@ export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 })
 
-  const filterClass = req.nextUrl.searchParams.get('class') || undefined
+  // Non-admin users are always scoped to their own classCode.
+  // Admin can override via ?class= param.
+  const paramClass = req.nextUrl.searchParams.get('class') || undefined
+  const filterClass =
+    session.role === 'ADMIN' ? (paramClass ?? undefined) : session.classCode
 
   const users = await prisma.user.findMany({
     where: {
