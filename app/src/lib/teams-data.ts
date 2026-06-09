@@ -17,6 +17,8 @@ export const TEAM_BY_CODE: Record<string, TeamInfo> = {
   PAN: { name: 'Panama', flagEmoji: '🇵🇦' },
   HON: { name: 'Honduras', flagEmoji: '🇭🇳' },
   JAM: { name: 'Jamaika', flagEmoji: '🇯🇲' },
+  HAI: { name: 'Haiti', flagEmoji: '🇭🇹' },
+  CUW: { name: 'Curaçao', flagEmoji: '🇨🇼' },
   // CONMEBOL
   ARG: { name: 'Argentinien', flagEmoji: '🇦🇷' },
   BRA: { name: 'Brasilien', flagEmoji: '🇧🇷' },
@@ -43,6 +45,7 @@ export const TEAM_BY_CODE: Record<string, TeamInfo> = {
   POL: { name: 'Polen', flagEmoji: '🇵🇱' },
   UKR: { name: 'Ukraine', flagEmoji: '🇺🇦' },
   SRB: { name: 'Serbien', flagEmoji: '🇷🇸' },
+  BIH: { name: 'Bosnien-Herzegowina', flagEmoji: '🇧🇦' },
   TUR: { name: 'Türkei', flagEmoji: '🇹🇷' },
   CZE: { name: 'Tschechien', flagEmoji: '🇨🇿' },
   WAL: { name: 'Wales', flagEmoji: '🏴󠁧󠁢󠁷󠁬󠁳󠁿' },
@@ -77,6 +80,8 @@ export const TEAM_BY_CODE: Record<string, TeamInfo> = {
   GHA: { name: 'Ghana', flagEmoji: '🇬🇭' },
   CIV: { name: 'Elfenbeinküste', flagEmoji: '🇨🇮' },
   RSA: { name: 'Südafrika', flagEmoji: '🇿🇦' },
+  CPV: { name: 'Kap Verde', flagEmoji: '🇨🇻' },
+  COD: { name: 'DR Kongo', flagEmoji: '🇨🇩' },
   // OFC
   NZL: { name: 'Neuseeland', flagEmoji: '🇳🇿' },
 }

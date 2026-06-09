@@ -3,66 +3,66 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 const teams = [
-  // Group A
-  { name: 'Vereinigte Staaten', shortName: 'USA', group: 'A', flagEmoji: '🇺🇸' },
-  { name: 'Mexiko',             shortName: 'MEX', group: 'A', flagEmoji: '🇲🇽' },
-  { name: 'Kanada',             shortName: 'CAN', group: 'A', flagEmoji: '🇨🇦' },
-  { name: 'Neuseeland',         shortName: 'NZL', group: 'A', flagEmoji: '🇳🇿' },
-  // Group B
-  { name: 'Argentinien',        shortName: 'ARG', group: 'B', flagEmoji: '🇦🇷' },
-  { name: 'Ecuador',            shortName: 'ECU', group: 'B', flagEmoji: '🇪🇨' },
-  { name: 'Chile',              shortName: 'CHI', group: 'B', flagEmoji: '🇨🇱' },
-  { name: 'Peru',               shortName: 'PER', group: 'B', flagEmoji: '🇵🇪' },
-  // Group C
-  { name: 'Brasilien',          shortName: 'BRA', group: 'C', flagEmoji: '🇧🇷' },
-  { name: 'Kolumbien',          shortName: 'COL', group: 'C', flagEmoji: '🇨🇴' },
-  { name: 'Venezuela',          shortName: 'VEN', group: 'C', flagEmoji: '🇻🇪' },
-  { name: 'Uruguay',            shortName: 'URU', group: 'C', flagEmoji: '🇺🇾' },
-  // Group D
-  { name: 'England',            shortName: 'ENG', group: 'D', flagEmoji: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-  { name: 'Frankreich',         shortName: 'FRA', group: 'D', flagEmoji: '🇫🇷' },
-  { name: 'Belgien',            shortName: 'BEL', group: 'D', flagEmoji: '🇧🇪' },
-  { name: 'Wales',              shortName: 'WAL', group: 'D', flagEmoji: '🏴󠁧󠁢󠁷󠁬󠁳󠁿' },
-  // Group E
-  { name: 'Spanien',            shortName: 'ESP', group: 'E', flagEmoji: '🇪🇸' },
-  { name: 'Portugal',           shortName: 'POR', group: 'E', flagEmoji: '🇵🇹' },
-  { name: 'Türkei',             shortName: 'TUR', group: 'E', flagEmoji: '🇹🇷' },
-  { name: 'Tschechien',         shortName: 'CZE', group: 'E', flagEmoji: '🇨🇿' },
-  // Group F
-  { name: 'Deutschland',        shortName: 'GER', group: 'F', flagEmoji: '🇩🇪' },
-  { name: 'Niederlande',        shortName: 'NED', group: 'F', flagEmoji: '🇳🇱' },
-  { name: 'Österreich',         shortName: 'AUT', group: 'F', flagEmoji: '🇦🇹' },
-  { name: 'Schottland',         shortName: 'SCO', group: 'F', flagEmoji: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
-  // Group G
-  { name: 'Japan',              shortName: 'JPN', group: 'G', flagEmoji: '🇯🇵' },
-  { name: 'Südkorea',           shortName: 'KOR', group: 'G', flagEmoji: '🇰🇷' },
-  { name: 'Iran',               shortName: 'IRN', group: 'G', flagEmoji: '🇮🇷' },
-  { name: 'Australien',         shortName: 'AUS', group: 'G', flagEmoji: '🇦🇺' },
-  // Group H
-  { name: 'Marokko',            shortName: 'MAR', group: 'H', flagEmoji: '🇲🇦' },
-  { name: 'Senegal',            shortName: 'SEN', group: 'H', flagEmoji: '🇸🇳' },
-  { name: 'Nigeria',            shortName: 'NGA', group: 'H', flagEmoji: '🇳🇬' },
-  { name: 'Kamerun',            shortName: 'CMR', group: 'H', flagEmoji: '🇨🇲' },
-  // Group I
-  { name: 'Saudi-Arabien',      shortName: 'KSA', group: 'I', flagEmoji: '🇸🇦' },
-  { name: 'Ägypten',            shortName: 'EGY', group: 'I', flagEmoji: '🇪🇬' },
-  { name: 'Algerien',           shortName: 'ALG', group: 'I', flagEmoji: '🇩🇿' },
-  { name: 'Tunesien',           shortName: 'TUN', group: 'I', flagEmoji: '🇹🇳' },
-  // Group J
-  { name: 'Kroatien',           shortName: 'CRO', group: 'J', flagEmoji: '🇭🇷' },
-  { name: 'Serbien',            shortName: 'SRB', group: 'J', flagEmoji: '🇷🇸' },
-  { name: 'Schweiz',            shortName: 'SUI', group: 'J', flagEmoji: '🇨🇭' },
-  { name: 'Albanien',           shortName: 'ALB', group: 'J', flagEmoji: '🇦🇱' },
-  // Group K
-  { name: 'Polen',              shortName: 'POL', group: 'K', flagEmoji: '🇵🇱' },
-  { name: 'Ukraine',            shortName: 'UKR', group: 'K', flagEmoji: '🇺🇦' },
-  { name: 'Rumänien',           shortName: 'ROU', group: 'K', flagEmoji: '🇷🇴' },
-  { name: 'Slowakei',           shortName: 'SVK', group: 'K', flagEmoji: '🇸🇰' },
-  // Group L
-  { name: 'Katar',              shortName: 'QAT', group: 'L', flagEmoji: '🇶🇦' },
-  { name: 'Irak',               shortName: 'IRQ', group: 'L', flagEmoji: '🇮🇶' },
-  { name: 'Usbekistan',         shortName: 'UZB', group: 'L', flagEmoji: '🇺🇿' },
-  { name: 'Indonesien',         shortName: 'IDN', group: 'L', flagEmoji: '🇮🇩' },
+  // Gruppe A
+  { name: 'Mexiko',              shortName: 'MEX', group: 'A', flagEmoji: '🇲🇽' },
+  { name: 'Südafrika',           shortName: 'RSA', group: 'A', flagEmoji: '🇿🇦' },
+  { name: 'Südkorea',            shortName: 'KOR', group: 'A', flagEmoji: '🇰🇷' },
+  { name: 'Tschechien',          shortName: 'CZE', group: 'A', flagEmoji: '🇨🇿' },
+  // Gruppe B
+  { name: 'Kanada',              shortName: 'CAN', group: 'B', flagEmoji: '🇨🇦' },
+  { name: 'Bosnien-Herzegowina', shortName: 'BIH', group: 'B', flagEmoji: '🇧🇦' },
+  { name: 'Katar',               shortName: 'QAT', group: 'B', flagEmoji: '🇶🇦' },
+  { name: 'Schweiz',             shortName: 'SUI', group: 'B', flagEmoji: '🇨🇭' },
+  // Gruppe C
+  { name: 'Brasilien',           shortName: 'BRA', group: 'C', flagEmoji: '🇧🇷' },
+  { name: 'Marokko',             shortName: 'MAR', group: 'C', flagEmoji: '🇲🇦' },
+  { name: 'Haiti',               shortName: 'HAI', group: 'C', flagEmoji: '🇭🇹' },
+  { name: 'Schottland',          shortName: 'SCO', group: 'C', flagEmoji: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
+  // Gruppe D
+  { name: 'Vereinigte Staaten',  shortName: 'USA', group: 'D', flagEmoji: '🇺🇸' },
+  { name: 'Paraguay',            shortName: 'PAR', group: 'D', flagEmoji: '🇵🇾' },
+  { name: 'Australien',          shortName: 'AUS', group: 'D', flagEmoji: '🇦🇺' },
+  { name: 'Türkei',              shortName: 'TUR', group: 'D', flagEmoji: '🇹🇷' },
+  // Gruppe E
+  { name: 'Deutschland',         shortName: 'GER', group: 'E', flagEmoji: '🇩🇪' },
+  { name: 'Curaçao',             shortName: 'CUW', group: 'E', flagEmoji: '🇨🇼' },
+  { name: 'Elfenbeinküste',      shortName: 'CIV', group: 'E', flagEmoji: '🇨🇮' },
+  { name: 'Ecuador',             shortName: 'ECU', group: 'E', flagEmoji: '🇪🇨' },
+  // Gruppe F
+  { name: 'Niederlande',         shortName: 'NED', group: 'F', flagEmoji: '🇳🇱' },
+  { name: 'Japan',               shortName: 'JPN', group: 'F', flagEmoji: '🇯🇵' },
+  { name: 'Schweden',            shortName: 'SWE', group: 'F', flagEmoji: '🇸🇪' },
+  { name: 'Tunesien',            shortName: 'TUN', group: 'F', flagEmoji: '🇹🇳' },
+  // Gruppe G
+  { name: 'Belgien',             shortName: 'BEL', group: 'G', flagEmoji: '🇧🇪' },
+  { name: 'Ägypten',             shortName: 'EGY', group: 'G', flagEmoji: '🇪🇬' },
+  { name: 'Iran',                shortName: 'IRN', group: 'G', flagEmoji: '🇮🇷' },
+  { name: 'Neuseeland',          shortName: 'NZL', group: 'G', flagEmoji: '🇳🇿' },
+  // Gruppe H
+  { name: 'Spanien',             shortName: 'ESP', group: 'H', flagEmoji: '🇪🇸' },
+  { name: 'Kap Verde',           shortName: 'CPV', group: 'H', flagEmoji: '🇨🇻' },
+  { name: 'Saudi-Arabien',       shortName: 'KSA', group: 'H', flagEmoji: '🇸🇦' },
+  { name: 'Uruguay',             shortName: 'URU', group: 'H', flagEmoji: '🇺🇾' },
+  // Gruppe I
+  { name: 'Frankreich',          shortName: 'FRA', group: 'I', flagEmoji: '🇫🇷' },
+  { name: 'Senegal',             shortName: 'SEN', group: 'I', flagEmoji: '🇸🇳' },
+  { name: 'Irak',                shortName: 'IRQ', group: 'I', flagEmoji: '🇮🇶' },
+  { name: 'Norwegen',            shortName: 'NOR', group: 'I', flagEmoji: '🇳🇴' },
+  // Gruppe J
+  { name: 'Argentinien',         shortName: 'ARG', group: 'J', flagEmoji: '🇦🇷' },
+  { name: 'Algerien',            shortName: 'ALG', group: 'J', flagEmoji: '🇩🇿' },
+  { name: 'Österreich',          shortName: 'AUT', group: 'J', flagEmoji: '🇦🇹' },
+  { name: 'Jordanien',           shortName: 'JOR', group: 'J', flagEmoji: '🇯🇴' },
+  // Gruppe K
+  { name: 'Portugal',            shortName: 'POR', group: 'K', flagEmoji: '🇵🇹' },
+  { name: 'DR Kongo',            shortName: 'COD', group: 'K', flagEmoji: '🇨🇩' },
+  { name: 'Usbekistan',          shortName: 'UZB', group: 'K', flagEmoji: '🇺🇿' },
+  { name: 'Kolumbien',           shortName: 'COL', group: 'K', flagEmoji: '🇨🇴' },
+  // Gruppe L
+  { name: 'England',             shortName: 'ENG', group: 'L', flagEmoji: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+  { name: 'Kroatien',            shortName: 'CRO', group: 'L', flagEmoji: '🇭🇷' },
+  { name: 'Ghana',               shortName: 'GHA', group: 'L', flagEmoji: '🇬🇭' },
+  { name: 'Panama',              shortName: 'PAN', group: 'L', flagEmoji: '🇵🇦' },
 ]
 
 function groupMatches(
