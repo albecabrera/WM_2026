@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
+import { QuickLogin } from '@/components/QuickLogin'
 
 export default async function LandingPage() {
   const session = await getSession()
@@ -146,9 +147,26 @@ export default async function LandingPage() {
           margin-bottom: 2.5rem;
         }
         .date-pill strong { color: var(--c-gold); }
+        .quick-login-row {
+          display: flex;
+          gap: 0.75rem;
+          max-width: 520px;
+          width: 100%;
+          margin-top: 1.75rem;
+        }
+        .quick-login-divider {
+          font-size: 0.68rem;
+          color: var(--c-hint);
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          margin-bottom: 0.6rem;
+          text-align: center;
+          width: 100%;
+        }
         @media (max-width: 480px) {
           .stat-row { grid-template-columns: repeat(2, 1fr); max-width: 280px; }
           .cta-btn { font-size: 1.2rem; padding: 0.75rem 2rem; }
+          .quick-login-row { flex-direction: column; }
         }
       `}</style>
 
@@ -202,6 +220,14 @@ export default async function LandingPage() {
         <Link href="/login" className="cta-btn">
           🔐 Jetzt mitspielen
         </Link>
+
+        <div style={{ maxWidth: '520px', width: '100%', marginTop: '1.75rem' }}>
+          <p className="quick-login-divider">Direktzugang für Lehrkräfte &amp; Admin</p>
+          <div className="quick-login-row">
+            <QuickLogin mode="lehrer" />
+            <QuickLogin mode="admin" />
+          </div>
+        </div>
       </main>
 
       {/* Footer */}
