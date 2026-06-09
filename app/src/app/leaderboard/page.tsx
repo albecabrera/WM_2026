@@ -30,16 +30,32 @@ export default function LeaderboardPage() {
   const [groups, setGroups] = useState<GroupStanding[]>([])
   const [view, setView] = useState<'individual' | 'groups'>('individual')
   const [filterClass, setFilterClass] = useState<string>('all')
+  const [myRole, setMyRole] = useState<string>('STUDENT')
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    const url = filterClass !== 'all' ? `/api/leaderboard?class=${filterClass}` : '/api/leaderboard'
-    fetch(url).then(r => r.json()).then(d => { if (Array.isArray(d)) setData(d) })
-  }, [filterClass])
-
-  useEffect(() => {
-    fetch('/api/leaderboard/groups').then(r => r.json()).then(d => { if (Array.isArray(d)) setGroups(d) })
+    fetch('/api/me').then(r => r.json()).then(d => {
+      if (d.classCode && d.role !== 'ADMIN') {
+        setFilterClass(d.classCode)
+      }
+      setMyRole(d.role || 'STUDENT')
+      setReady(true)
+    })
   }, [])
 
+  useEffect(() => {
+    if (!ready) return
+    const url = filterClass !== 'all' ? `/api/leaderboard?class=${filterClass}` : '/api/leaderboard'
+    fetch(url).then(r => r.json()).then(d => { if (Array.isArray(d)) setData(d) })
+  }, [filterClass, ready])
+
+  useEffect(() => {
+    if (!ready) return
+    const url = filterClass !== 'all' ? `/api/leaderboard/groups?class=${filterClass}` : '/api/leaderboard/groups'
+    fetch(url).then(r => r.json()).then(d => { if (Array.isArray(d)) setGroups(d) })
+  }, [filterClass, ready])
+
+  const isAdmin = myRole === 'ADMIN'
   const classes = ['all', ...ALL_CLASS_CODES]
 
   return (
@@ -109,8 +125,8 @@ export default function LeaderboardPage() {
               </div>
             )}
 
-            {/* Class filter — pick a class to see its group winner (#1) */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            {/* Class filter — only visible for admin */}
+            {isAdmin && <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
               {classes.map(c => (
                 <button key={c} onClick={() => setFilterClass(c)} style={{
                   padding: '0.35rem 0.9rem',
@@ -126,7 +142,7 @@ export default function LeaderboardPage() {
                   {c === 'all' ? 'Alle Klassen' : `Klasse ${classLabel(c)}`}
                 </button>
               ))}
-            </div>
+            </div>}
 
             {/* Individual table */}
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>

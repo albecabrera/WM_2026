@@ -3,11 +3,12 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { ALL_CLASS_CODES } from '@/lib/classes'
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 })
 
-  const classCodes = ALL_CLASS_CODES
+  const filterClass = req.nextUrl.searchParams.get('class') || undefined
+  const classCodes = filterClass ? [filterClass] : ALL_CLASS_CODES
 
   const users = await prisma.user.findMany({
     where: { role: { in: ['STUDENT', 'TEACHER'] }, classCode: { in: classCodes } },
