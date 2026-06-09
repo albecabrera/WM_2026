@@ -128,13 +128,16 @@ async function main() {
     'Torfeder','Rasenmeteor','Ballorkan','Elferblitz','Netzkomet',
     'Flankenzauber','Torphantom','Dribbeldrache','Rasensturm','Balladler',
   ]
-  const gelbTeachers = ['Torpantherspur', 'Rasenzauberwind']
+  const gelbTeachers = [
+    { name: 'Torpantherspur', loginCode: 'lehrerinca' },
+    { name: 'Rasenzauberwind', loginCode: 'lehrerow'  },
+  ]
 
   for (const name of gelbStudents) {
     await prisma.user.create({ data: { name, classCode: 'gelb', loginCode: code(name, 'gelb'), role: 'STUDENT' } })
   }
-  for (const name of gelbTeachers) {
-    await prisma.user.create({ data: { name, classCode: 'gelb', loginCode: code(name, 'gelb'), role: 'TEACHER' } })
+  for (const t of gelbTeachers) {
+    await prisma.user.create({ data: { name: t.name, classCode: 'gelb', loginCode: t.loginCode, role: 'TEACHER' } })
   }
 
   // ── ESG K4 — 30 Schüler + 2 Lehrer ────────────────────────────────────────
@@ -146,13 +149,16 @@ async function main() {
     'Tempoheld','Kopfballstar','Dribbelheld','Ballwachter','Spielfuhrer',
     'Torhelfer','Flankenstar','Abwehrzauber','Mittelfeldstar','Schussgeist',
   ]
-  const k4Teachers = ['Defensivgeist', 'Spielleitung']
+  const k4Teachers = [
+    { name: 'Defensivgeist', loginCode: 'lehrerinve' },
+    { name: 'Spielleitung',  loginCode: 'lehrerca'   },
+  ]
 
   for (const name of k4Students) {
     await prisma.user.create({ data: { name, classCode: 'k4', loginCode: code(name, 'k4'), role: 'STUDENT' } })
   }
-  for (const name of k4Teachers) {
-    await prisma.user.create({ data: { name, classCode: 'k4', loginCode: code(name, 'k4'), role: 'TEACHER' } })
+  for (const t of k4Teachers) {
+    await prisma.user.create({ data: { name: t.name, classCode: 'k4', loginCode: t.loginCode, role: 'TEACHER' } })
   }
 
   console.log('Created 2 classes (BBG Gelb + ESG K4), ' + (gelbStudents.length + k4Students.length) + ' students, ' + (gelbTeachers.length + k4Teachers.length) + ' teachers')
