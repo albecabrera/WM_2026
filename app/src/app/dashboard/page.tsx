@@ -552,48 +552,53 @@ export default function DashboardPage() {
       {/* Nav */}
       <nav className="nav">
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--c-gold)' }}>⚽ WM 2026</span>
-          {me?.role === 'TEACHER' && (
-            <span style={{
-              fontSize: '0.8rem', color: 'var(--c-muted)',
-              background: 'var(--c-surface)', border: '1px solid var(--c-border)',
-              borderRadius: '6px', padding: '0.2rem 0.65rem',
-              marginLeft: '0.25rem',
-            }}>
-              👩‍🏫 {me.name}
-            </span>
-          )}
-          {urgentUntipped.length > 0 && (
-            <span style={{
-              background: '#ef4444', color: '#fff', borderRadius: '100px',
-              fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.55rem',
-              marginLeft: '0.5rem', verticalAlign: 'middle',
-              animation: urgentUntipped.some(m => new Date(m.kickoff).getTime() - Date.now() < 2 * 3600_000) ? 'pulse 1.5s infinite' : 'none',
-            }}>
-              {urgentUntipped.length} offen
-            </span>
-          )}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <Link href="/dashboard/ko" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>KO-Runden</Link>
-            <Link href="/leaderboard" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Rangliste</Link>
+          {/* Logo */}
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', color: 'var(--c-gold)', flexShrink: 0 }}>⚽ WM 2026</span>
+
+          {/* Center links */}
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/dashboard/ko" className="btn btn-ghost" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>KO-Runden</Link>
+            <Link href="/leaderboard" className="btn btn-ghost" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>Rangliste</Link>
             {me && (me.role === 'TEACHER' || me.role === 'ADMIN') && (
               <>
-                <Link href="/admin" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>⚙ Verwaltung</Link>
-                <Link href="/klassenliste" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>📋 Klassenliste</Link>
+                <Link href="/admin" className="btn btn-ghost" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>⚙ Verwaltung</Link>
+                <Link href="/klassenliste" className="btn btn-ghost" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>📋 Listen</Link>
               </>
+            )}
+          </div>
+
+          {/* Right: user + utils */}
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+            {urgentUntipped.length > 0 && (
+              <span style={{
+                background: '#ef4444', color: '#fff', borderRadius: '100px',
+                fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.55rem', whiteSpace: 'nowrap',
+                animation: urgentUntipped.some(m => new Date(m.kickoff).getTime() - Date.now() < 2 * 3600_000) ? 'pulse 1.5s infinite' : 'none',
+              }}>
+                {urgentUntipped.length} offen
+              </span>
+            )}
+            {me?.role === 'TEACHER' && (
+              <span style={{
+                fontSize: '0.78rem', color: 'var(--c-muted)',
+                background: 'var(--c-surface)', border: '1px solid var(--c-border)',
+                borderRadius: '6px', padding: '0.2rem 0.6rem', whiteSpace: 'nowrap',
+              }}>
+                👩‍🏫 {me.name}
+              </span>
             )}
             <button
               onClick={() => setShowTutorial(true)}
-              title="Spielanleitung anzeigen"
+              title="Spielanleitung"
               style={{
                 background: 'rgba(245,200,66,0.12)', border: '1px solid rgba(245,200,66,0.3)',
-                borderRadius: '50%', width: '32px', height: '32px',
-                color: '#f5c842', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                borderRadius: '50%', width: '30px', height: '30px',
+                color: '#f5c842', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
               }}
             >?</button>
             <ThemeToggle />
-            <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Abmelden</a>
+            <a href="/api/auth/logout" className="btn btn-ghost" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>Abmelden</a>
           </div>
         </div>
       </nav>
@@ -897,6 +902,9 @@ export default function DashboardPage() {
         @media (max-width: 768px) {
           .dashboard-grid { grid-template-columns: 1fr; }
           .dashboard-grid .sidebar-sticky { position: static !important; }
+        }
+        @media (max-width: 640px) {
+          .nav .container { flex-wrap: wrap; height: auto !important; padding: 0.5rem 1rem; gap: 0.4rem; }
         }
       `}</style>
       </div>
