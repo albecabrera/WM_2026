@@ -57,7 +57,7 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
           border: 1px solid var(--c-border); color: var(--c-muted);
         }
         .kl-filter a.active { background: rgba(245,200,66,0.12); border-color: var(--c-gold); color: var(--c-gold); }
-        .kl-class { margin-bottom: 3rem; break-inside: avoid; }
+        .kl-class { margin-bottom: 3rem; }
         .kl-class-title {
           font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem;
           color: var(--c-gold); border-bottom: 2px solid var(--c-border);
@@ -81,7 +81,7 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
         .kl-table .num { color: var(--c-hint); width: 2rem; }
         .kl-table .code { font-family: monospace; color: var(--c-gold); font-size: 0.85rem; }
         /* ── Tarjetas recortables ───────────────────────────── */
-        .kl-cards-section { margin-top: 2rem; }
+        .kl-cards-section { margin-top: 2rem; break-before: page; }
         .kl-cards-label {
           font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
           letter-spacing: 0.1em; color: var(--c-hint); margin-bottom: 0.75rem;
@@ -120,15 +120,19 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
         }
         @media print {
           .no-print { display: none !important; }
+          nextjs-portal { display: none !important; }
           body { background: white !important; color: black !important; }
-          .kl-class { page-break-after: always; }
+          .kl-wrap { padding: 0 !important; }
+          .kl-header { break-after: avoid; page-break-after: avoid; margin-bottom: 0.5rem !important; }
+          .kl-class { break-inside: auto; page-break-after: always; }
           .kl-class:last-child { page-break-after: avoid; }
           .kl-class-title { color: #333 !important; }
           .kl-teacher-row { background: #f9f9f9 !important; border-color: #ddd !important; }
           .kl-table td, .kl-table th { border-color: #ddd !important; color: black !important; }
           .kl-table .code { color: #444 !important; }
           .kl-table .num { color: #888 !important; }
-          /* Tarjetas en impresión */
+          /* Tarjetas en su propia página */
+          .kl-cards-section { break-before: always; page-break-before: always; margin-top: 0 !important; }
           .kl-cards-label { border-color: #bbb !important; color: #888 !important; }
           .kl-cards-grid { grid-template-columns: repeat(4, 1fr); gap: 4mm; }
           .kl-card {
@@ -198,7 +202,7 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
         {/* Class sections */}
         {classes.map((cls) => (
           <div key={cls.code} className="kl-class">
-            <div className="kl-class-title">Klasse {cls.label}</div>
+            <div className="kl-class-title">{cls.label.startsWith('Klasse') ? cls.label : `Klasse ${cls.label}`}</div>
 
             {/* Teachers */}
             {cls.teachers.length > 0 && (
