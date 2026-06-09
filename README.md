@@ -1,6 +1,6 @@
 # WM 2026 Tipp-Spiel · BBG & ESG Bonn
 
-Schulinternes Tipp-Spiel zur FIFA WM 2026 für das **BBG** (6 Farb-Klassen) und die **Elisabeth-Selbert-Gesamtschule** (Klasse 1–6). Schüler und Lehrkräfte tippen Spielergebnisse und treten gegeneinander an.
+Schulinternes Tipp-Spiel zur FIFA WM 2026 für das **BBG** (Gruppe Gelb) und die **Elisabeth-Selbert-Gesamtschule** (Klasse 4). Schüler und Lehrkräfte tippen Spielergebnisse und treten gegeneinander an.
 
 > **⚠️ Datenschutz-Grundsatz:** Es werden ausschließlich Phantasienamen verwendet.  
 > Echte Namen, E-Mail-Adressen oder Passwörter werden niemals eingegeben, gespeichert oder übertragen.  
@@ -46,55 +46,31 @@ npm run dev                   # http://localhost:3000
 
 ---
 
-### BBG — Lehrkräfte (12 gesamt, 2 pro Klasse)
+### BBG — Lehrkräfte (Gruppe Gelb)
 
-| Klasse       | Code 1                      | Code 2                    |
-|--------------|-----------------------------|---------------------------|
-| **gelb**     | `torpantherspur-gelb`       | `rasenzauberwind-gelb`    |
-| **schwarz**  | `ballgepardspur-schwarz`    | `netzfederflug-schwarz`   |
-| **gruen**    | `elferkompass-gruen`        | `torregenflug-gruen`      |
-| **blau**     | `flankenmeteorflug-blau`    | `ballvulkanwind-blau`     |
-| **rot**      | `netzfuchsspur-rot`         | `rasenphantasie-rot`      |
-| **weiss**    | `pokalwirbel-weiss`         | `fanfarenblitz-weiss`     |
+| Name     | Code          |
+|----------|---------------|
+| Cabrera  | `lehrerinca`  |
+| Owji     | `lehrerow`    |
 
-### BBG — Schüler-Beispiele (je 2 pro Klasse)
+### BBG — Schüler-Beispiele (Gruppe Gelb)
 
-| Klasse       | Beispiel 1                | Beispiel 2                |
-|--------------|---------------------------|---------------------------|
-| **gelb**     | `rasenrakete-gelb`        | `ballblitz-gelb`          |
-| **schwarz**  | `netzfalke-schwarz`       | `elferstern-schwarz`      |
-| **gruen**    | `rasenblitz-gruen`        | `ballstern-gruen`         |
-| **blau**     | `torgepard-blau`          | `rasenvulkan-blau`        |
-| **rot**      | `torrakete-rot`           | `rasenfeder-rot`          |
-| **weiss**    | `torwirbelwind-weiss`     | `rasenmeteorflug-weiss`   |
-
-> Alle 180 BBG-Schüler-Codes: `{phantasiename}-{farbe}` — vollständige Liste in `prisma/seed.ts`.
+Codes haben das Format `{phantasiename}-gelb`, z.B. `rasenrakete-gelb`.  
+Vollständige Liste (30 Codes) in `prisma/seed.ts`.
 
 ---
 
-### ESG — Lehrkräfte (13 gesamt; Klasse 3 hat 3 Lehrkräfte)
+### ESG — Lehrkräfte (Klasse 4)
 
-| Klasse       | Code 1                    | Code 2                  | Code 3             |
-|--------------|---------------------------|-------------------------|--------------------|
-| **k1**       | `taktikmeister-k1`        | `spielstratege-k1`      | —                  |
-| **k2**       | `angriffsleiter-k2`       | `defensivheld-k2`       | —                  |
-| **k3**       | `spielvisionaer-k3`       | `offensivcoach-k3`      | `kampfkommando-k3` |
-| **k4**       | `defensivgeist-k4`        | `spielleitung-k4`       | —                  |
-| **k5**       | `sturmfuhrer-k5`          | `abwehrstratege-k5`     | —                  |
-| **k6**       | `flankencoach-k6`         | `spielanalyst-k6`       | —                  |
+| Name     | Code           |
+|----------|----------------|
+| Venedey  | `lehrerinve`   |
+| Cabrera  | `lehrerca`     |
 
-### ESG — Schüler-Beispiele (je 2 pro Klasse)
+### ESG — Schüler-Beispiele (Klasse 4)
 
-| Klasse   | Beispiel 1           | Beispiel 2            |
-|----------|----------------------|-----------------------|
-| **k1**   | `sturmheld-k1`       | `torjager-k1`         |
-| **k2**   | `sturmheld-k2`       | `torjager-k2`         |
-| **k3**   | `sturmheld-k3`       | `torjager-k3`         |
-| **k4**   | `sturmheld-k4`       | `torjager-k4`         |
-| **k5**   | `sturmheld-k5`       | `torjager-k5`         |
-| **k6**   | `sturmheld-k6`       | `torjager-k6`         |
-
-> Alle 180 ESG-Schüler-Codes: `{phantasiename}-{klassencode}` — vollständige Liste in `prisma/seed.ts`.
+Codes haben das Format `{phantasiename}-k4`, z.B. `sturmheld-k4`.  
+Vollständige Liste (30 Codes) in `prisma/seed.ts`.
 
 ---
 
@@ -102,15 +78,15 @@ npm run dev                   # http://localhost:3000
 
 | # | Funktion | Beschreibung | Rollen |
 |---|----------|-------------|--------|
-| 1 | **2-Schritt-Login** | Schule wählen → Schulcode eingeben → persönlichen Code eingeben | Alle |
-| 2 | **Multi-Schul-Unterstützung** | BBG und ESG vollständig getrennt — eigene Ranglisten pro Schule | Alle |
+| 1 | **3-Schritt-Login** | Schule klicken → Rolle wählen (Schüler/Lehrkraft) → persönlichen Code eingeben | Alle |
+| 2 | **Klassen-Isolation** | Schüler/Lehrer sehen nur die eigene Klasse in Rangliste & Dashboard | Alle |
 | 3 | **Dashboard** | Übersicht: Punkte, Rang, Tipps; Tutorial-Modal für Erstbesucher | Schüler, Lehrer |
 | 4 | **Gruppen-Tipps** | Tippen auf alle 104 WM-Spiele (Heim/Auswärts) — gesperrt 5 Min. vor Anpfiff | Schüler, Lehrer |
 | 5 | **Fortschrittsbalken** | Zeigt „X von Y getippt" pro Gruppe | Schüler, Lehrer |
 | 6 | **Weltmeister-Tipp** | Einmaliger Tipp auf den WM-Sieger (+5 Punkte) bis Turnierbeginn | Schüler, Lehrer |
 | 7 | **KO-Runden** | Anzeige R32 → R16 → QF → SF → Finale mit Live-Ergebnissen | Schüler, Lehrer |
 | 8 | **Live-Badge** | `● LIVE` bei laufenden Spielen; automatische Aktualisierung alle 30 Sek. | Alle |
-| 9 | **Rangliste — Einzelwertung** | Punkte-Rangliste aller Mitspieler der eigenen Schule; Filter nach Klasse; Top-3-Podium | Alle |
+| 9 | **Rangliste — Einzelwertung** | Punkte-Rangliste der eigenen Klasse; Top-3-Podium; Admin sieht alle | Alle |
 | 10 | **Rangliste — Gruppenwertung** | Klassenrangliste mit Gesamtpunkten, Durchschnitt, bestem Spieler | Alle |
 | 11 | **Hell-/Dunkel-Modus** | Toggle ☀️/🌙; wird in `localStorage` gespeichert | Alle |
 | 12 | **Admin — Ergebnisse** | Spielergebnisse manuell eintragen + automatische Punkteberechnung | Admin |
@@ -120,7 +96,7 @@ npm run dev                   # http://localhost:3000
 | 16 | **Admin — Schüler verwalten** | Neue Phantasienamen anlegen, Codes einsehen | Admin |
 | 17 | **Admin — Code-Reset** | Vergessenen Code via `#Name` suchen und neu generieren | Admin |
 | 18 | **Admin — QR-Codes** | QR-Code pro Login-Code generieren (zum Ausdrucken/Aushängen) | Admin |
-| 19 | **Admin — Schul-Umschaltung** | Alle Admin-Ansichten getrennt nach BBG / ESG filterbar | Admin |
+| 19 | **Admin — Gesamtübersicht** | Admin sieht alle Klassen (Gelb + K4) ohne Einschränkung | Admin |
 | 20 | **Klassenliste (Druck)** | Druckbare Liste: Klasse → Lehrkräfte → Schüler + **ausschneidbare Schüler-Karten** (Name-Zeile + Code + Klasse); PDF-Export | Admin, Lehrer |
 | 21 | **Auto-Sync** | Server holt WM-Ergebnisse automatisch von `football-data.org` (Server→Server, kein Browser) | — |
 | 22 | **Celebrations-Seite** | Siegerehrung mit Animation und Konfetti nach Turnierende | Admin |
@@ -350,7 +326,7 @@ WM_2026/
 │       │   ├── leaderboard/    Rangliste
 │       │   ├── klassenliste/   Druckbare Klassenliste
 │       │   ├── datenschutz/    DSGVO-Erklärung
-│       │   ├── login/          2-Schritt-Login
+│       │   ├── login/          3-Schritt-Login (Schule → Rolle → Code)
 │       │   └── page.tsx        Landingpage
 │       ├── components/         Wiederverwendbare UI-Komponenten
 │       └── lib/                Auth, Prisma, Klassen, Punkte-Logik
