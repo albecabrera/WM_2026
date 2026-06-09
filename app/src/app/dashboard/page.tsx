@@ -429,32 +429,16 @@ export default function DashboardPage() {
       {/* Tutorial modal */}
       {showTutorial && <TutorialModal onClose={closeTutorial} />}
 
-      {/* ⏰ Sticky warning banner */}
-      <div style={{
-        background: 'rgba(245,200,66,0.08)',
-        borderBottom: '1px solid rgba(245,200,66,0.2)',
-        padding: '0.55rem 1rem',
-        textAlign: 'center',
-        fontSize: '0.82rem',
-        color: '#f5c842',
-        letterSpacing: '0.02em',
-        position: 'sticky',
-        top: '60px',
-        zIndex: 90,
-        backdropFilter: 'blur(8px)',
-      }}>
-        ⏰ <strong>Wichtig:</strong> Alle Zeiten in <strong>deutscher Zeit (MEZ/MESZ)</strong> · Tipp bis <strong>5 Min. vor Anpfiff</strong> abgeben — danach gesperrt!
-      </div>
-
-      {/* 🔔 Notification permission banner */}
+      {/* 🔔 Notification permission banner — above nav, solid background */}
       {notifPermission === 'default' && !notifDismissed && (
         <div style={{
-          background: 'rgba(59,130,246,0.08)',
-          borderBottom: '1px solid rgba(59,130,246,0.2)',
-          padding: '0.55rem 1rem',
+          background: 'var(--c-surface)',
+          borderBottom: '1px solid rgba(59,130,246,0.35)',
+          padding: '0.6rem 1rem',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: '0.75rem', flexWrap: 'wrap',
-          fontSize: '0.82rem', color: 'var(--c-muted)',
+          fontSize: '0.82rem', color: 'var(--c-text)',
+          zIndex: 101, position: 'relative',
         }}>
           <span>🔔 <strong>Browser-Benachrichtigungen</strong> aktivieren — damit du Spiele nicht verpasst!</span>
           <button onClick={requestNotifPermission} style={{
@@ -463,17 +447,19 @@ export default function DashboardPage() {
             fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
           }}>Aktivieren</button>
           <button onClick={() => setNotifDismissed(true)} style={{
-            background: 'none', border: 'none', color: 'var(--c-hint)',
-            cursor: 'pointer', fontSize: '0.8rem',
+            background: 'none', border: '1px solid var(--c-border)', color: 'var(--c-muted)',
+            cursor: 'pointer', fontSize: '0.8rem', borderRadius: '6px',
+            padding: '0.25rem 0.6rem',
           }}>Nicht jetzt</button>
         </div>
       )}
       {notifPermission === 'granted' && (
         <div style={{
-          background: 'rgba(34,197,94,0.06)',
-          borderBottom: '1px solid rgba(34,197,94,0.15)',
+          background: 'var(--c-surface)',
+          borderBottom: '1px solid rgba(34,197,94,0.3)',
           padding: '0.4rem 1rem',
-          textAlign: 'center', fontSize: '0.75rem', color: 'rgba(34,197,94,0.8)',
+          textAlign: 'center', fontSize: '0.75rem', color: 'rgba(34,197,94,0.9)',
+          zIndex: 101, position: 'relative',
         }}>
           ✓ Benachrichtigungen aktiv — du wirst 2h und 30 Min. vor deinen Spielen erinnert
         </div>
@@ -602,6 +588,22 @@ export default function DashboardPage() {
           </div>
         </div>
       </nav>
+
+      {/* ⏰ Sticky warning — below nav, sticks under it when scrolling */}
+      <div style={{
+        background: 'var(--c-surface)',
+        borderBottom: '1px solid rgba(245,200,66,0.35)',
+        padding: '0.5rem 1rem',
+        textAlign: 'center',
+        fontSize: '0.82rem',
+        color: '#f5c842',
+        letterSpacing: '0.02em',
+        position: 'sticky',
+        top: '60px',
+        zIndex: 99,
+      }}>
+        ⏰ <strong>Wichtig:</strong> Alle Zeiten in <strong>deutscher Zeit (MEZ/MESZ)</strong> · Tipp bis <strong>5 Min. vor Anpfiff</strong> abgeben — danach gesperrt!
+      </div>
 
       <div className="container relative" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
 
