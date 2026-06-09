@@ -80,6 +80,44 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
         .kl-table tr:last-child td { border-bottom: none; }
         .kl-table .num { color: var(--c-hint); width: 2rem; }
         .kl-table .code { font-family: monospace; color: var(--c-gold); font-size: 0.85rem; }
+        /* ── Tarjetas recortables ───────────────────────────── */
+        .kl-cards-section { margin-top: 2rem; }
+        .kl-cards-label {
+          font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.1em; color: var(--c-hint); margin-bottom: 0.75rem;
+          border-top: 2px dashed var(--c-border); padding-top: 0.75rem;
+        }
+        .kl-cards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 0.5rem;
+        }
+        .kl-card {
+          border: 1.5px dashed var(--c-border);
+          border-radius: 8px;
+          padding: 0.6rem 0.75rem;
+          display: flex; flex-direction: column; gap: 0.3rem;
+          background: var(--c-surface2);
+        }
+        .kl-card-name-label {
+          font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em;
+          color: var(--c-hint);
+        }
+        .kl-card-name-line {
+          border-bottom: 1px solid var(--c-border2);
+          height: 1.4rem; margin-bottom: 0.2rem;
+        }
+        .kl-card-fantasy {
+          font-size: 0.7rem; color: var(--c-muted);
+        }
+        .kl-card-code {
+          font-family: monospace; font-size: 0.78rem;
+          color: var(--c-gold); font-weight: 700;
+          word-break: break-all;
+        }
+        .kl-card-app {
+          font-size: 0.6rem; color: var(--c-hint);
+        }
         @media print {
           .no-print { display: none !important; }
           body { background: white !important; color: black !important; }
@@ -90,6 +128,19 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
           .kl-table td, .kl-table th { border-color: #ddd !important; color: black !important; }
           .kl-table .code { color: #444 !important; }
           .kl-table .num { color: #888 !important; }
+          /* Tarjetas en impresión */
+          .kl-cards-label { border-color: #bbb !important; color: #888 !important; }
+          .kl-cards-grid { grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+          .kl-card {
+            border: 1.5px dashed #aaa !important;
+            border-radius: 4px; background: white !important;
+            padding: 4mm 5mm; break-inside: avoid;
+          }
+          .kl-card-name-label { color: #666 !important; }
+          .kl-card-name-line { border-color: #aaa !important; }
+          .kl-card-fantasy { color: #555 !important; }
+          .kl-card-code { color: #000 !important; }
+          .kl-card-app { color: #999 !important; }
         }
       `}</style>
 
@@ -183,6 +234,22 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Tarjetas recortables */}
+            <div className="kl-cards-section">
+              <div className="kl-cards-label">✂ Ausschneiden &amp; verteilen — eine Karte pro Schüler/in</div>
+              <div className="kl-cards-grid">
+                {cls.students.map((s) => (
+                  <div key={`card-${s.loginCode}`} className="kl-card">
+                    <div className="kl-card-name-label">Name des Schülers / der Schülerin</div>
+                    <div className="kl-card-name-line" />
+                    <div className="kl-card-fantasy">🎭 {s.name}</div>
+                    <div className="kl-card-code">🔑 {s.loginCode}</div>
+                    <div className="kl-card-app">WM 2026 Tipp-Spiel · Klasse {cls.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ))}
