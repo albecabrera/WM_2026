@@ -141,7 +141,8 @@ export default function LeaderboardPage() {
 
             {/* Individual table */}
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <table className="table">
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 'inherit' }}>
+              <table className="table" style={{ minWidth: 520 }}>
                 <thead>
                   <tr>
                     <th style={{ width: '60px' }}>#</th>
@@ -179,13 +180,15 @@ export default function LeaderboardPage() {
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           </>
         )}
 
         {view === 'groups' && (
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <table className="table">
+            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 'inherit' }}>
+            <table className="table" style={{ minWidth: 460 }}>
               <thead>
                 <tr>
                   <th style={{ width: '60px' }}>#</th>
@@ -220,6 +223,7 @@ export default function LeaderboardPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 

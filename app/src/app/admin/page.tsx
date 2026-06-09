@@ -621,7 +621,8 @@ export default function AdminPage() {
             </div>
 
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <table className="table">
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 'inherit' }}>
+              <table className="table" style={{ minWidth: 460 }}>
                 <thead><tr><th>Name</th><th>Klasse</th><th>Login-Code</th><th>QR</th></tr></thead>
                 <tbody>
                   {users.map((u) => (
@@ -637,6 +638,7 @@ export default function AdminPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
@@ -660,7 +662,8 @@ export default function AdminPage() {
               </button>
             </div>
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <table className="table">
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: 'inherit' }}>
+              <table className="table" style={{ minWidth: 520 }}>
                 <thead>
                   <tr>
                     <th>#</th><th>Name</th><th>Klasse</th>
@@ -686,6 +689,7 @@ export default function AdminPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
