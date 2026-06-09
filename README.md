@@ -121,10 +121,29 @@ npm run dev                   # http://localhost:3000
 | 17 | **Admin — Code-Reset** | Vergessenen Code via `#Name` suchen und neu generieren | Admin |
 | 18 | **Admin — QR-Codes** | QR-Code pro Login-Code generieren (zum Ausdrucken/Aushängen) | Admin |
 | 19 | **Admin — Schul-Umschaltung** | Alle Admin-Ansichten getrennt nach BBG / ESG filterbar | Admin |
-| 20 | **Klassenliste (Druck)** | Druckbare Liste: Klasse → Lehrkräfte → Schüler mit Codes; PDF-Export | Admin, Lehrer |
+| 20 | **Klassenliste (Druck)** | Druckbare Liste: Klasse → Lehrkräfte → Schüler + **ausschneidbare Schüler-Karten** (Name-Zeile + Code + Klasse); PDF-Export | Admin, Lehrer |
 | 21 | **Auto-Sync** | Server holt WM-Ergebnisse automatisch von `football-data.org` (Server→Server, kein Browser) | — |
 | 22 | **Celebrations-Seite** | Siegerehrung mit Animation und Konfetti nach Turnierende | Admin |
 | 23 | **Datenschutzseite** | Vollständige DSGVO-Erklärung unter `/datenschutz` | Alle (öffentlich) |
+
+---
+
+## WM 2026 Gruppen (offizielles Sortiment — FIFA, 5. Dez. 2025)
+
+| Gruppe | Team 1 | Team 2 | Team 3 | Team 4 |
+|--------|--------|--------|--------|--------|
+| **A** | 🇲🇽 Mexiko | 🇿🇦 Südafrika | 🇰🇷 Südkorea | 🇨🇿 Tschechien |
+| **B** | 🇨🇦 Kanada | 🇧🇦 Bosnien-H. | 🇶🇦 Katar | 🇨🇭 Schweiz |
+| **C** | 🇧🇷 Brasilien | 🇲🇦 Marokko | 🇭🇹 Haiti | 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Schottland |
+| **D** | 🇺🇸 USA | 🇵🇾 Paraguay | 🇦🇺 Australien | 🇹🇷 Türkei |
+| **E** | 🇩🇪 Deutschland | 🇨🇼 Curaçao | 🇨🇮 Elfenbeinküste | 🇪🇨 Ecuador |
+| **F** | 🇳🇱 Niederlande | 🇯🇵 Japan | 🇸🇪 Schweden | 🇹🇳 Tunesien |
+| **G** | 🇧🇪 Belgien | 🇪🇬 Ägypten | 🇮🇷 Iran | 🇳🇿 Neuseeland |
+| **H** | 🇪🇸 Spanien | 🇨🇻 Kap Verde | 🇸🇦 Saudi-Arabien | 🇺🇾 Uruguay |
+| **I** | 🇫🇷 Frankreich | 🇸🇳 Senegal | 🇮🇶 Irak | 🇳🇴 Norwegen |
+| **J** | 🇦🇷 Argentinien | 🇩🇿 Algerien | 🇦🇹 Österreich | 🇯🇴 Jordanien |
+| **K** | 🇵🇹 Portugal | 🇨🇩 DR Kongo | 🇺🇿 Usbekistan | 🇨🇴 Kolumbien |
+| **L** | 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England | 🇭🇷 Kroatien | 🇬🇭 Ghana | 🇵🇦 Panama |
 
 ---
 
@@ -336,4 +355,5 @@ WM_2026/
 │       ├── components/         Wiederverwendbare UI-Komponenten
 │       └── lib/                Auth, Prisma, Klassen, Punkte-Logik
 └── preview/                    HTML-Prototyp (ohne Server)
+LEHRER_CHECKLISTE.md            Checkliste für Lehrkräfte (ausdrucken)
 ```

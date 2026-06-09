@@ -30,9 +30,12 @@
 
 1. Admin-Bereich öffnen (`admin2026`).
 2. **Klassenliste** auswählen → eigene Klasse wählen → **Drucken**.
-3. Jeden Zettel an das entsprechende Kind verteilen — **vor der Stunde**.
+3. Der Ausdruck enthält zwei Bereiche:
+   - **Übersichtsliste** — alle Schüler mit Codes (für die Lehrkraft)
+   - **Ausschneidbare Karten** (✂) — eine Karte pro Schüler mit Leerzeile für den echten Namen, Phantasiename und Login-Code
+4. Karten ausschneiden, echten Namen draufschreiben und verteilen — **vor der Stunde**.
 
-> Tipp: QR-Codes pro Login-Code sind im Admin-Bereich verfügbar. Ausdrucken und aushängen spart Tippfehler.
+> Tipp: QR-Codes pro Login-Code sind ebenfalls im Admin-Bereich verfügbar. Ausdrucken und aushängen spart Tippfehler.
 
 ---
 
@@ -82,6 +85,27 @@
 | 🎽 Gruppensieger | Bester Spieler der eigenen Klasse |
 | 👑 Jahrgangsbester | Bester Spieler aller Klassen (schulweit) |
 | 🏅 Beste Klasse | Klasse mit den meisten Gesamtpunkten |
+
+---
+
+---
+
+## 9. WM 2026 Gruppen (zur Info)
+
+| Gruppe | Teams |
+|--------|-------|
+| A | 🇲🇽 Mexiko · 🇿🇦 Südafrika · 🇰🇷 Südkorea · 🇨🇿 Tschechien |
+| B | 🇨🇦 Kanada · 🇧🇦 Bosnien-H. · 🇶🇦 Katar · 🇨🇭 Schweiz |
+| C | 🇧🇷 Brasilien · 🇲🇦 Marokko · 🇭🇹 Haiti · 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Schottland |
+| D | 🇺🇸 USA · 🇵🇾 Paraguay · 🇦🇺 Australien · 🇹🇷 Türkei |
+| E | 🇩🇪 Deutschland · 🇨🇼 Curaçao · 🇨🇮 Elfenbeinküste · 🇪🇨 Ecuador |
+| F | 🇳🇱 Niederlande · 🇯🇵 Japan · 🇸🇪 Schweden · 🇹🇳 Tunesien |
+| G | 🇧🇪 Belgien · 🇪🇬 Ägypten · 🇮🇷 Iran · 🇳🇿 Neuseeland |
+| H | 🇪🇸 Spanien · 🇨🇻 Kap Verde · 🇸🇦 Saudi-Arabien · 🇺🇾 Uruguay |
+| I | 🇫🇷 Frankreich · 🇸🇳 Senegal · 🇮🇶 Irak · 🇳🇴 Norwegen |
+| J | 🇦🇷 Argentinien · 🇩🇿 Algerien · 🇦🇹 Österreich · 🇯🇴 Jordanien |
+| K | 🇵🇹 Portugal · 🇨🇩 DR Kongo · 🇺🇿 Usbekistan · 🇨🇴 Kolumbien |
+| L | 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England · 🇭🇷 Kroatien · 🇬🇭 Ghana · 🇵🇦 Panama |
 
 ---
 
