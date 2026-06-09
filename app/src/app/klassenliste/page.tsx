@@ -126,8 +126,8 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
           /* ── Layout: cada clase = exactamente 2 páginas (lista + tarjetas) ── */
           .kl-wrap { padding: 0 !important; }
           .kl-header { break-after: avoid; page-break-after: avoid; margin-bottom: 2mm !important; }
-          .kl-class { break-inside: avoid; page-break-after: always; margin-bottom: 0 !important; }
-          .kl-class:last-child { page-break-after: avoid; }
+          .kl-class { break-inside: auto; margin-bottom: 0 !important; }
+          .kl-class + .kl-class { break-before: always; page-break-before: always; }
           /* ── Lista: todo en 1 página ── */
           .kl-class-title {
             font-size: 13pt !important; color: #222 !important;
