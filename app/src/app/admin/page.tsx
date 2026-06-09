@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeProvider'
 import { PageBg } from '@/components/PageBg'
 import { classLabel, getClassCodesForSchool } from '@/lib/classes'
+import QRCode from 'qrcode'
 
 interface Match {
   id: string; matchNumber: number; phase: string; group?: string; round?: string
@@ -50,6 +51,7 @@ export default function AdminPage() {
   const [advancingPenalty, setAdvancingPenalty] = useState(false)
   const [sync, setSync] = useState<{ lastSyncAt: string | null; lastStatus: string | null; noKey: boolean } | null>(null)
   const [adminSchool, setAdminSchool] = useState<'bbg' | 'esg'>('bbg')
+  const [qrUrls, setQrUrls] = useState<Record<string, string>>({})
 
   async function lookupOrResetCode(action: 'lookup' | 'reset' = 'lookup') {
     if (!resetQuery.trim()) return
@@ -106,6 +108,16 @@ export default function AdminPage() {
       fetch(url).then((r) => r.json()).then((d) => { if (Array.isArray(d)) setLeaderboard(d) })
     }
   }, [tab, filterClass, adminSchool])
+
+  useEffect(() => {
+    if (users.length === 0) return
+    Promise.all(
+      users.map(async (u) => {
+        const url = await QRCode.toDataURL(u.loginCode, { width: 120, margin: 1, color: { dark: '#000000', light: '#ffffff' } })
+        return [u.loginCode, url] as const
+      })
+    ).then((entries) => setQrUrls(Object.fromEntries(entries)))
+  }, [users])
 
   async function saveResult(matchId: string) {
     const r = results[matchId]
@@ -634,8 +646,11 @@ export default function AdminPage() {
                       <td><span className="badge badge-muted">{classLabel(u.classCode)}</span></td>
                       <td><code style={{ color: 'var(--c-gold)', fontSize: '0.9rem' }}>{u.loginCode}</code></td>
                       <td>
-                        <img src={`/api/admin/qr?code=${u.loginCode}`} alt={`QR ${u.loginCode}`}
-                          style={{ width: '48px', height: '48px', borderRadius: '4px' }} />
+                        {qrUrls[u.loginCode]
+                          ? <img src={qrUrls[u.loginCode]} alt={`QR ${u.loginCode}`}
+                              style={{ width: '48px', height: '48px', borderRadius: '4px', imageRendering: 'pixelated' }} />
+                          : <span style={{ fontSize: '0.7rem', color: 'var(--c-muted)' }}>…</span>
+                        }
                       </td>
                     </tr>
                   ))}
@@ -702,10 +717,11 @@ export default function AdminPage() {
       <style>{`
         @media print {
           .nav, button, .btn { display: none !important; }
+          nextjs-portal { display: none !important; }
           body { background: white; color: black; }
           .table td, .table th { border: 1px solid #ccc; color: black; }
           code { color: #333 !important; }
-          img { border: 1px solid #ccc; }
+          img { width: 64px !important; height: 64px !important; border: 1px solid #ccc; image-rendering: pixelated; }
         }
       `}</style>
     </div>
