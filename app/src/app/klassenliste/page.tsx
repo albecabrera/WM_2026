@@ -119,59 +119,65 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
           font-size: 0.6rem; color: var(--c-hint);
         }
         @media print {
-          @page { margin: 10mm; }
+          @page { size: A4 portrait; margin: 8mm; }
           .no-print { display: none !important; }
           nextjs-portal { display: none !important; }
-          html, body { background: white !important; color: black !important; font-size: 8.5pt !important; }
-          /* ── Layout ── */
+          html, body { background: white !important; color: black !important; }
+          /* ── Layout: cada clase = exactamente 2 páginas (lista + tarjetas) ── */
           .kl-wrap { padding: 0 !important; }
-          .kl-header { break-after: avoid; page-break-after: avoid; margin-bottom: 3mm !important; }
-          .kl-class { break-inside: auto; page-break-after: always; margin-bottom: 0 !important; }
+          .kl-header { break-after: avoid; page-break-after: avoid; margin-bottom: 2mm !important; }
+          .kl-class { break-inside: avoid; page-break-after: always; margin-bottom: 0 !important; }
           .kl-class:last-child { page-break-after: avoid; }
-          /* ── Lista compacta (cabe en 1-2 páginas) ── */
+          /* ── Lista: todo en 1 página ── */
           .kl-class-title {
-            font-size: 16pt !important; color: #222 !important;
-            border-color: #ccc !important; padding-bottom: 1mm !important; margin-bottom: 2mm !important;
+            font-size: 13pt !important; color: #222 !important;
+            border-color: #bbb !important; padding-bottom: 1mm !important; margin-bottom: 1.5mm !important;
           }
-          .kl-section-label { font-size: 7pt !important; margin-bottom: 1mm !important; color: #666 !important; }
+          .kl-section-label {
+            font-size: 6pt !important; margin-bottom: 0.8mm !important;
+            color: #666 !important; letter-spacing: 0.05em !important;
+          }
           .kl-teacher-row {
             background: #f5f5f5 !important; border-color: #ddd !important;
-            padding: 1.5mm 2.5mm !important; margin-bottom: 1mm !important; border-radius: 2px !important;
+            padding: 1mm 2mm !important; margin-bottom: 0.8mm !important;
+            border-radius: 1px !important;
           }
-          .kl-teacher-name { font-size: 8.5pt !important; }
-          .kl-table { margin-top: 1mm !important; }
+          .kl-teacher-name { font-size: 7.5pt !important; }
+          .kl-table { margin-top: 0.5mm !important; }
           .kl-table th {
-            font-size: 6.5pt !important; padding: 1mm 1.5mm !important;
+            font-size: 6pt !important; padding: 0.6mm 1.5mm !important;
             border-color: #ccc !important; color: #666 !important;
           }
           .kl-table td {
-            font-size: 8pt !important; padding: 1mm 1.5mm !important;
-            border-color: #e5e5e5 !important; color: black !important;
-            line-height: 1.2 !important;
+            font-size: 7.5pt !important; padding: 0.6mm 1.5mm !important;
+            border-color: #eee !important; color: black !important;
+            line-height: 1.15 !important;
           }
-          .kl-table .code { font-size: 7.5pt !important; color: #222 !important; }
-          .kl-table .num { color: #999 !important; }
-          /* ── Tarjetas: 5 col × 6 filas = 30 en 1 página ── */
+          .kl-table .code { font-size: 7pt !important; color: #222 !important; font-family: monospace !important; }
+          .kl-table .num { font-size: 6.5pt !important; color: #aaa !important; }
+          /* ── Tarjetas: 5 col × 6 filas = 30 exacto en 1 página ── */
           .kl-cards-section { break-before: always; page-break-before: always; margin-top: 0 !important; }
           .kl-cards-label {
-            font-size: 7pt !important; border-color: #bbb !important;
-            color: #888 !important; padding-top: 2mm !important; margin-bottom: 2mm !important;
+            font-size: 6pt !important; border-color: #bbb !important; color: #999 !important;
+            padding-top: 1.5mm !important; margin-bottom: 2mm !important; border-width: 1px !important;
           }
           .kl-cards-grid {
+            display: grid !important;
             grid-template-columns: repeat(5, 1fr) !important;
-            gap: 3mm !important;
+            gap: 2.5mm !important;
           }
           .kl-card {
-            border: 1px dashed #aaa !important;
+            border: 1px dashed #bbb !important;
             border-radius: 2px !important; background: white !important;
-            padding: 2mm 2.5mm !important; gap: 0.8mm !important;
+            padding: 1.5mm 2mm !important; gap: 0.5mm !important;
+            display: flex !important; flex-direction: column !important;
             break-inside: avoid;
           }
-          .kl-card-name-label { font-size: 6pt !important; color: #777 !important; }
-          .kl-card-name-line { height: 6mm !important; border-color: #aaa !important; margin-bottom: 0.5mm !important; }
-          .kl-card-fantasy { font-size: 6.5pt !important; color: #555 !important; }
-          .kl-card-code { font-size: 7pt !important; color: #000 !important; }
-          .kl-card-app { font-size: 5.5pt !important; color: #aaa !important; }
+          .kl-card-name-label { font-size: 5.5pt !important; color: #888 !important; line-height: 1.2 !important; }
+          .kl-card-name-line { height: 7mm !important; border-color: #aaa !important; margin-bottom: 0.3mm !important; }
+          .kl-card-fantasy { font-size: 6pt !important; color: #555 !important; }
+          .kl-card-code { font-size: 6.5pt !important; color: #000 !important; font-weight: 700 !important; word-break: break-all !important; }
+          .kl-card-app { font-size: 5pt !important; color: #bbb !important; }
         }
       `}</style>
 
