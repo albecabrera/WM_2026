@@ -119,32 +119,59 @@ export default async function KlassenlistePage({ searchParams }: PageProps) {
           font-size: 0.6rem; color: var(--c-hint);
         }
         @media print {
+          @page { margin: 10mm; }
           .no-print { display: none !important; }
           nextjs-portal { display: none !important; }
-          body { background: white !important; color: black !important; }
+          html, body { background: white !important; color: black !important; font-size: 8.5pt !important; }
+          /* ── Layout ── */
           .kl-wrap { padding: 0 !important; }
-          .kl-header { break-after: avoid; page-break-after: avoid; margin-bottom: 0.5rem !important; }
-          .kl-class { break-inside: auto; page-break-after: always; }
+          .kl-header { break-after: avoid; page-break-after: avoid; margin-bottom: 3mm !important; }
+          .kl-class { break-inside: auto; page-break-after: always; margin-bottom: 0 !important; }
           .kl-class:last-child { page-break-after: avoid; }
-          .kl-class-title { color: #333 !important; }
-          .kl-teacher-row { background: #f9f9f9 !important; border-color: #ddd !important; }
-          .kl-table td, .kl-table th { border-color: #ddd !important; color: black !important; }
-          .kl-table .code { color: #444 !important; }
-          .kl-table .num { color: #888 !important; }
-          /* Tarjetas en su propia página */
-          .kl-cards-section { break-before: always; page-break-before: always; margin-top: 0 !important; }
-          .kl-cards-label { border-color: #bbb !important; color: #888 !important; }
-          .kl-cards-grid { grid-template-columns: repeat(4, 1fr); gap: 4mm; }
-          .kl-card {
-            border: 1.5px dashed #aaa !important;
-            border-radius: 4px; background: white !important;
-            padding: 4mm 5mm; break-inside: avoid;
+          /* ── Lista compacta (cabe en 1-2 páginas) ── */
+          .kl-class-title {
+            font-size: 16pt !important; color: #222 !important;
+            border-color: #ccc !important; padding-bottom: 1mm !important; margin-bottom: 2mm !important;
           }
-          .kl-card-name-label { color: #666 !important; }
-          .kl-card-name-line { border-color: #aaa !important; }
-          .kl-card-fantasy { color: #555 !important; }
-          .kl-card-code { color: #000 !important; }
-          .kl-card-app { color: #999 !important; }
+          .kl-section-label { font-size: 7pt !important; margin-bottom: 1mm !important; color: #666 !important; }
+          .kl-teacher-row {
+            background: #f5f5f5 !important; border-color: #ddd !important;
+            padding: 1.5mm 2.5mm !important; margin-bottom: 1mm !important; border-radius: 2px !important;
+          }
+          .kl-teacher-name { font-size: 8.5pt !important; }
+          .kl-table { margin-top: 1mm !important; }
+          .kl-table th {
+            font-size: 6.5pt !important; padding: 1mm 1.5mm !important;
+            border-color: #ccc !important; color: #666 !important;
+          }
+          .kl-table td {
+            font-size: 8pt !important; padding: 1mm 1.5mm !important;
+            border-color: #e5e5e5 !important; color: black !important;
+            line-height: 1.2 !important;
+          }
+          .kl-table .code { font-size: 7.5pt !important; color: #222 !important; }
+          .kl-table .num { color: #999 !important; }
+          /* ── Tarjetas: 5 col × 6 filas = 30 en 1 página ── */
+          .kl-cards-section { break-before: always; page-break-before: always; margin-top: 0 !important; }
+          .kl-cards-label {
+            font-size: 7pt !important; border-color: #bbb !important;
+            color: #888 !important; padding-top: 2mm !important; margin-bottom: 2mm !important;
+          }
+          .kl-cards-grid {
+            grid-template-columns: repeat(5, 1fr) !important;
+            gap: 3mm !important;
+          }
+          .kl-card {
+            border: 1px dashed #aaa !important;
+            border-radius: 2px !important; background: white !important;
+            padding: 2mm 2.5mm !important; gap: 0.8mm !important;
+            break-inside: avoid;
+          }
+          .kl-card-name-label { font-size: 6pt !important; color: #777 !important; }
+          .kl-card-name-line { height: 6mm !important; border-color: #aaa !important; margin-bottom: 0.5mm !important; }
+          .kl-card-fantasy { font-size: 6.5pt !important; color: #555 !important; }
+          .kl-card-code { font-size: 7pt !important; color: #000 !important; }
+          .kl-card-app { font-size: 5.5pt !important; color: #aaa !important; }
         }
       `}</style>
 
