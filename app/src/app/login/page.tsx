@@ -171,7 +171,7 @@ export default function LoginPage() {
                   <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2.2rem', color: 'var(--c-gold)', lineHeight: 1, marginBottom: '0.4rem' }}>Wer bist du?</h1>
                 </div>
                 <div className="role-cards">
-                  <button className="role-card" onClick={() => { setCode(''); setError(''); setSchoolError(''); setSchoolInput(''); setStep('student-code') }}>
+                  <button className="role-card" onClick={() => { setCode(''); setError(''); setStep('student-code') }}>
                     <div className="role-card-icon">🎒</div>
                     <div className="role-card-label">Schüler/in</div>
                     <div className="role-card-sub">Schülercode eingeben</div>
