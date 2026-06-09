@@ -102,7 +102,7 @@ export default function AlleKlassenPage() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'DM Sans', sans-serif; background: #fff; color: #111; }
         .no-print { display: flex; gap: 0.75rem; align-items: center; padding: 1rem 1.5rem;
@@ -179,7 +179,7 @@ export default function AlleKlassenPage() {
           .kl-card-code { font-size: 6.5pt !important; color: #000 !important; }
           .kl-card-app { font-size: 5pt !important; color: #bbb !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* Toolbar — solo en pantalla */}
       <div className="no-print">

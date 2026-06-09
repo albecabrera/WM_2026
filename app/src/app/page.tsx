@@ -24,7 +24,7 @@ export default function LandingPage() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .hero-section {
           min-height: 100vh;
           position: relative;
@@ -178,7 +178,7 @@ export default function LandingPage() {
           .cta-btn { font-size: 1.2rem; padding: 0.75rem 2rem; }
           .quick-login-row { flex-direction: column; }
         }
-      `}</style>
+      ` }} />
 
       <PageBg src="/bg-stadium.jpg" hero />
 

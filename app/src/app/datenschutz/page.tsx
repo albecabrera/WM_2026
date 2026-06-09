@@ -4,7 +4,7 @@ import { PageBg } from '@/components/PageBg'
 export default function DatenschutzPage() {
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ds-wrap {
           min-height: 100vh;
           position: relative;
@@ -53,7 +53,7 @@ export default function DatenschutzPage() {
           margin-right: 0.5rem;
           margin-bottom: 0.5rem;
         }
-      `}</style>
+      ` }} />
 
       <PageBg src="/bg-stadium.jpg" />
 

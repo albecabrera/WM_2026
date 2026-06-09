@@ -702,7 +702,7 @@ export default function AdminPage() {
       </div>
 
       {/* Print styles */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           .nav, button, .btn { display: none !important; }
           nextjs-portal { display: none !important; }
@@ -711,7 +711,7 @@ export default function AdminPage() {
           code { color: #333 !important; }
           img { width: 64px !important; height: 64px !important; border: 1px solid #ccc; image-rendering: pixelated; }
         }
-      `}</style>
+      ` }} />
     </div>
     </>
   )

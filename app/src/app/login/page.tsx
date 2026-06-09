@@ -72,7 +72,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .login-page { min-height: 100vh; display: grid; grid-template-columns: 1fr 480px; }
         .login-left { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; }
         .login-ball-bg { position: absolute; inset: 0; background: url('/bg-pitch.jpg') center center / cover no-repeat; }
@@ -100,7 +100,7 @@ export default function LoginPage() {
           .login-right { border-left: none; border-top: 1px solid var(--c-border); padding: 2rem 1.5rem; }
           .login-left-content h2 { font-size: 2.5rem; }
         }
-      `}</style>
+      ` }} />
 
       <div className="login-page">
         {/* Left */}

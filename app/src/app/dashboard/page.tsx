@@ -894,7 +894,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .dashboard-grid {
           display: grid;
           grid-template-columns: 1fr 300px;
@@ -908,7 +908,7 @@ export default function DashboardPage() {
         @media (max-width: 640px) {
           .nav .container { flex-wrap: wrap; height: auto !important; padding: 0.5rem 1rem; gap: 0.4rem; }
         }
-      `}</style>
+      ` }} />
       </div>
     </>
   )

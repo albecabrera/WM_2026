@@ -56,7 +56,7 @@ export default function LehrerhandbuchPage() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         * { box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: #fff; color: #111; line-height: 1.55; }
 
@@ -156,7 +156,7 @@ export default function LehrerhandbuchPage() {
           .pts-label { font-size: 7.5pt !important; }
           .hb-break { break-before: always !important; }
         }
-      `}</style>
+      ` }} />
 
       {/* Toolbar */}
       <div className="toolbar">

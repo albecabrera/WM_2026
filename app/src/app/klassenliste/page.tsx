@@ -63,7 +63,7 @@ function KlassenlisteContent() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .kl-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
         .kl-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .kl-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2rem; }
@@ -194,7 +194,7 @@ function KlassenlisteContent() {
           .kl-card-code { font-size: 6.5pt !important; color: #000 !important; font-weight: 700 !important; word-break: break-all !important; }
           .kl-card-app { font-size: 5pt !important; color: #bbb !important; }
         }
-      `}</style>
+      ` }} />
 
       <div className="kl-wrap">
         {/* Header */}

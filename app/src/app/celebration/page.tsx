@@ -30,12 +30,12 @@ function Confetti() {
           }} />
         )
       })}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes confettiFall {
           0%   { transform: translateY(-20px) rotate(0deg); opacity: 0.9; }
           100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -65,7 +65,8 @@ function CelebrationContent() {
         position: 'relative',
         padding: '2rem',
       }}>
-      <Confetti />
+      {/* Solo tras el mount: Math.random() en el render rompería la hidratación */}
+      {visible && <Confetti />}
 
       <div style={{
         position: 'relative', zIndex: 4, textAlign: 'center',
