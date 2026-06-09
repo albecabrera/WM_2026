@@ -245,6 +245,9 @@ export default function AdminPage() {
           <button onClick={() => { fetchLeaderboard(); startCelebration() }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.9rem' }}>
             🎉 Feier starten
           </button>
+          <Link href="/lehrerhandbuch" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+            📘 Handbuch
+          </Link>
           <Link href="/klassenliste" className="btn btn-ghost" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
             📋 Klassenliste
           </Link>
